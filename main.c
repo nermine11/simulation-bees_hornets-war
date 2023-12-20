@@ -137,6 +137,66 @@ void printGrid(Unite grid[LIGNES][COLONNES]) {
     printf("\n");
 }
 
+
+/* in main :
+ char input 
+printf("Ou se déplace l'abeille?")
+scanf("%c", &input);
+// we can gere case of error with while but i dont know if necessary
+*/
+// Etape "Colonie d'abeilles"
+void Move_Abeille(UListe* ABEILLE, char input){
+    switch(input){
+        case 'N':
+            UListe->posx = x-1;
+            break;
+        case 'S':
+            UListe->posx = x+1;
+            break;
+        case 'O':
+            UListe->posy = y-1;
+            break;
+        case 'E':
+            UListe->posy = y+1;
+            break;
+        case 'NO': // input is char but NO is string ill fix it later
+            UListe->posx = x-1;
+            UListe->posy = y-1;
+            break;        
+        case 'NE':
+            UListe->posx = x-1;
+            UListe->posy = y+1;
+            break;
+        case 'SO':
+            UListe->posx = x+1;
+            UListe->posy = y-1;
+            break;
+        case 'SE':
+            UListe->posx = x+1;
+            UListe->posy = y+1;
+            break;
+        default:
+            break;
+
+    }
+}
+
+
+void production_ruche()
+// Narmin
+
+
+void recolter()
+    //Zenomium
+
+void detruire_insecte()
+    // zenomium si tu veux
+
+
+// apres finir ces fonctions , on voit ce qu'il manquera pour etape abeille, lezz goo
+
+
+
 void processCampTurn(Unite grid[LIGNES][COLONNES], char camp) {
     // A FAIRE
 }
@@ -148,6 +208,8 @@ void resolveCombat(Unite* unit1, Unite* unit2) {
 void updateResources(int* pollen, int* defeatedAbeille) {
     //  A FAIRE
 }
+
+
 
 // return 1 if voisin else 0
 int voisins(Unite unit1, Unite unit2) {
