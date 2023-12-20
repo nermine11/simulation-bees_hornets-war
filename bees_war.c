@@ -1,4 +1,4 @@
-#include <MLV/MLV_all.h>
+//#include <MLV/MLV_all.h>
 #include <stdio.h>
 #include<stdlib.h>
 
@@ -8,9 +8,10 @@
 #define LIGNES 18
 // Les deux camps :
 #define ABEILLE 'A'
-#define FRELON 'F'
+#define FRELONS 'F'
 // Les types d'unites :
-#define REINE 'r'
+#define REINEA 'r'
+#define REINEF 'rf'
 #define OUVRIERE 'o'
 #define ESCADRON 'e'
 #define GUERRIERE 'g'
@@ -67,25 +68,39 @@ Unite* occupant; // les autres occupants de la case
 
 // La structure Grille :
 typedef struct {
-Case plateau[X][Y];
+//Case plateau[X][Y];
 Unite* abeille, frelon;
 int tour; // Numero du tour
 int ressourcesAbeille, ressourcesFrelon;
 } Grille;
 
 
-//abeille
+void creer_plateau(char plateau[LIGNES][COLONNES]){
+  for (int i = 0; i < LIGNES;  i++){
+        for (int j = 0; j< COLONNES; j++){
+                plateau[i][j] = ' ';
+
+        }
+  }
+  //les positions initiales
+  plateau[0][0] = RUCHE;
+  plateau[17][11] = NID;
+  plateau[1][1] = REINEA; //abeille
+  plateau[2][5] = OUVRIERE;
+  plateau[3][5] = GUERRIERE;
+  plateau[12][3] = REINEF;
+  plateau[11][11] = FRELON;
+  plateau[13][10] = FRELON;
+}
+
+
 int main(){
 
-    Unite REINE;
-    Unite.camp = ABEILLE;
-    Unite.type = REINE;
-    Unite.force = FREINE;
-    Unite.posx, Unite.posy;
-    Unite.destx, Unite.desty;
-    Unite.production; Unite.temps; Unite.toursrestant;
-    
+    char plateau[LIGNES][COLONNES];
+    creer_plateau(plateau);
+    printf("plateau: %c", plateau);
 
+ 
 
 
 }
