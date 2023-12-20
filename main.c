@@ -149,6 +149,7 @@ void updateResources(int* pollen, int* defeatedAbeille) {
     //  A FAIRE
 }
 
+// return 1 if voisin else 0
 int voisins(Unite unit1, Unite unit2) {
     int dx = abs(unit1.posx - unit2.posx);
     int dy = abs(unit1.posy - unit2.posy);
@@ -162,12 +163,12 @@ int PasdeTroupes(Unite grid[LIGNES][COLONNES], char type) {
 int main() {
     srand(time(NULL));
     int fin = 0;
-    int pollen, defeatedAbeille = 10;
+    int pollen = 10, defeatedAbeille = 10;
     Unite grid[LIGNES][COLONNES];
     initializeGrid(grid);
 
     while (!fin) {
-        char firstCamp = (rand() % 2 == 0) ? ABEILLE : FRELON;
+        char firstCamp = (rand() % 2 == 0) ? ABEILLE : FRELON; // if random number is 0 abeille joue first else frelon
         char secondCamp = (firstCamp == ABEILLE) ? FRELON : ABEILLE;
 
         processCampTurn(grid, firstCamp);
