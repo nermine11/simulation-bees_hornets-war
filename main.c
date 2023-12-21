@@ -203,16 +203,27 @@ int production_ruche(UListe* ruche, Grille grid,  char* choix_prod){
     }
 
 
-
-void recolter()
-    //Zenomium
+void recolter(Grille* grid, Unite* unit) {
+    if (unit->temps > 0) {
+        unit->temps--; 
+    } else {
+        grid->ressourcesAbeille++;
+        unit->type = -1; // pas de ressource pour les frelons
+        unit->production = RECOLTE;
+        unit->temps = TRECOLTE; 
+    }
+}
 
 void detruire_insecte()
     // zenomium si tu veux
 
 
-// apres finir ces fonctions , on voit ce qu'il manquera pour etape abeille, lezz goo
+void tour(Unite grid[LIGNES][COLONNES], char camp) {
+    // A FAIRE
 
+    //recolter(&grid, &unit);
+    ;
+}
 void processCampTurn(Unite grid[LIGNES][COLONNES], char camp) {
     // A FAIRE
 }
@@ -241,17 +252,15 @@ int PasdeTroupes(Unite grid[LIGNES][COLONNES], char type) {
 int main() {
     srand(time(NULL));
     int fin = 0;
-    int pollen = 10, ressourcesAbeille = 10;
     Unite grid[LIGNES][COLONNES];
     initializeGrid(grid);
 
     while (!fin) {
-        char firstCamp = (rand() % 2 == 0) ? ABEILLE : FRELON; // if random number is 0 abeille joue first else frelon
-        char secondCamp = (firstCamp == ABEILLE) ? FRELON : ABEILLE;
-
-        processCampTurn(grid, firstCamp);
-        processCampTurn(grid, secondCamp);
-
+        char firstCamp = (rand() % 2 == 0) ? ABEILLE : FRELONS; // if random number is 0 abeille joue first else frelon
+        char secondCamp = (firstCamp == ABEILLE) ? FRELONS : ABEILLE;
+        int pollen, defeatedAbeille = 10;
+        tour(grid, firstCamp);
+        tour(grid, secondCamp);
         for (int i = 0; i < LIGNES; ++i) {
             for (int j = 0; j < COLONNES; ++j) {
                 Unite x = grid[i][j];
