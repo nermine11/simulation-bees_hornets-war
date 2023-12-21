@@ -49,7 +49,7 @@
 // La structure Unite :
 typedef struct unite {
 char camp; // ABEILLE ou FRELON
-char type; // RUCHE, NID, REINE, OUVRIERE, GUERRIERE, ESCADRON ou FREL
+char type; // RUCHE, NID, REINE, OUVRIERE, GUERRIERE, ESCADRON ou FRELON
 int force; // la force de l'unite
 int posx, posy; // position actuelle sur la grille
 int destx, desty; // destination (negatif si immobile)
@@ -90,9 +90,9 @@ void initializeGrid(Unite grid[LIGNES][COLONNES]) {
     grid[0][2] = (Unite){ABEILLE, GUERRIERE, FGUERRIERE, 0, 2};
     grid[0][3] = (Unite){ABEILLE, ESCADRON, FESCADRON, 0, 3};
 
-    grid[LIGNES - 1][COLONNES - 1] = (Unite){FRELONS, REINEF, FREINE, LIGNES - 1, COLONNES - 1};//grid[17][11]
+    grid[LIGNES - 1][COLONNES - 1] = (Unite){FRELON, REINE, FREINE, LIGNES - 1, COLONNES - 1};//grid[17][11]
     grid[LIGNES - 1][COLONNES - 2] = (Unite){FFRELON, FREL, FFRELON, LIGNES - 1, COLONNES - 2}; //gird[17][10]
-    grid[LIGNES - 1][COLONNES - 3] = (Unite){FRELONS, FREL, FFRELON, LIGNES - 1, COLONNES - 3}; //grid[17][9]
+    grid[LIGNES - 1][COLONNES - 3] = (Unite){FRELON, FREL, FFRELON, LIGNES - 1, COLONNES - 3}; //grid[17][9]
 }
 
 void printGrid(Unite grid[LIGNES][COLONNES]) {
@@ -111,11 +111,8 @@ void printGrid(Unite grid[LIGNES][COLONNES]) {
                 case RUCHE:
                     printf(" R ");
                     break;
-                case REINEF:
-                    printf(" rF ");
-                    break;
-                case REINEA:
-                    printf(" rA ");
+                case REINE:
+                    printf(" r ");
                     break;
                 case GUERRIERE:
                     printf(" G ");
@@ -128,9 +125,6 @@ void printGrid(Unite grid[LIGNES][COLONNES]) {
                     break;
                 case FREL:
                     printf(" f ");
-                    break;
-                case RECOLTE:
-                    printf(" p ");
                     break;
                 default:
                     printf("   ");
@@ -153,38 +147,6 @@ scanf("%c", &input);
 // we can gere case of error with while but i dont know if necessary
 */
 // Etape "Colonie d'abeilles"
-<<<<<<< HEAD
-void Move(Unite* unite, char input) {
-    // il faudra déclarer input avant d'appeler la fonction 
-    switch(input) {
-        case 'N':
-            unite->posx = unite->posx - 1;
-            break;
-        case 'S':
-            unite->posx = unite->posx + 1;
-            break;
-        case 'O':
-            unite->posy = unite->posy - 1;
-            break;
-        case 'E':
-            unite->posy = unite->posy + 1;
-            break;
-        case 'NO':
-            unite->posx = unite->posx - 1;
-            unite->posy = unite->posy - 1;
-            break;        
-        case 'NE':
-            unite->posx = unite->posx - 1;
-            unite->posy = unite->posy + 1;
-            break;
-        case 'SO':
-            unite->posx = unite->posx + 1;
-            unite->posy = unite->posy - 1;
-            break;
-        case 'SE':
-            unite->posx = unite->posx + 1;
-            unite->posy = unite->posy + 1;
-=======
 void Move_Abeille(UListe* abeille, char* input){
     switch(input){
         case 'N':
@@ -214,10 +176,10 @@ void Move_Abeille(UListe* abeille, char* input){
         case "SE":
             (*UListe)->posx = x+1;
             (*UListe)->posy = y+1;
->>>>>>> 6d3a400 (progress)
             break;
         default:
             break;
+
     }
 }
 
@@ -242,54 +204,25 @@ int production_ruche(UListe* ruche, Grille grid,  char* choix_prod){
 
 
 
+void recolter()
+    //Zenomium
 
+void detruire_insecte()
+    // zenomium si tu veux
 
-
-
-
-
-
-
-
-
-<<<<<<< HEAD
-
-void production_ruche()
-// Narmin
-    ;
-=======
->>>>>>> 6d3a400 (progress)
-
-void recolter(Grille* grid, Unite* unit) {
-    if (unit->temps > 0) {
-        unit->temps--; 
-    } else {
-        grid->ressourcesAbeille++;
-        unit->type = -1; // pas de ressource pour les frelons
-        unit->production = RECOLTE;
-        unit->temps = TRECOLTE; 
-    }
-}
 
 // apres finir ces fonctions , on voit ce qu'il manquera pour etape abeille, lezz goo
 
-
-
-void tour(Unite grid[LIGNES][COLONNES], char camp) {
+void processCampTurn(Unite grid[LIGNES][COLONNES], char camp) {
     // A FAIRE
-
-    //recolter(&grid, &unit);
-    ;
 }
 
 void resolveCombat(Unite* unit1, Unite* unit2) {
     //  A FAIRE
-    ;
 }
 
 void updateResources(int* pollen, int* defeatedAbeille) {
     //  A FAIRE
-    ;
 }
 
 
@@ -308,19 +241,16 @@ int PasdeTroupes(Unite grid[LIGNES][COLONNES], char type) {
 int main() {
     srand(time(NULL));
     int fin = 0;
-<<<<<<< HEAD
-=======
     int pollen = 10, ressourcesAbeille = 10;
->>>>>>> 6d3a400 (progress)
     Unite grid[LIGNES][COLONNES];
     initializeGrid(grid);
 
     while (!fin) {
-        char firstCamp = (rand() % 2 == 0) ? ABEILLE : FRELONS; // if random number is 0 abeille joue first else frelon
-        char secondCamp = (firstCamp == ABEILLE) ? FRELONS : ABEILLE;
-        int pollen, defeatedAbeille = 10;
-        tour(grid, firstCamp);
-        tour(grid, secondCamp);
+        char firstCamp = (rand() % 2 == 0) ? ABEILLE : FRELON; // if random number is 0 abeille joue first else frelon
+        char secondCamp = (firstCamp == ABEILLE) ? FRELON : ABEILLE;
+
+        processCampTurn(grid, firstCamp);
+        processCampTurn(grid, secondCamp);
 
         for (int i = 0; i < LIGNES; ++i) {
             for (int j = 0; j < COLONNES; ++j) {
