@@ -72,8 +72,10 @@ typedef struct {
 //Case plateau[X][Y];
 Unite* abeille, frelon;
 int tour; // Numero du tour
-int ressourcesAbeille, ressourcesFrelon;
+int pollen, ressourcesAbeille;
 } Grille;
+
+
 
 void initializeGrid(Unite grid[LIGNES][COLONNES]) {
     for (int i = 0; i < LIGNES; ++i) {
@@ -151,6 +153,7 @@ scanf("%c", &input);
 // we can gere case of error with while but i dont know if necessary
 */
 // Etape "Colonie d'abeilles"
+<<<<<<< HEAD
 void Move(Unite* unite, char input) {
     // il faudra déclarer input avant d'appeler la fonction 
     switch(input) {
@@ -181,17 +184,81 @@ void Move(Unite* unite, char input) {
         case 'SE':
             unite->posx = unite->posx + 1;
             unite->posy = unite->posy + 1;
+=======
+void Move_Abeille(UListe* abeille, char* input){
+    switch(input){
+        case 'N':
+            (*UListe)->posx = x-1;
+            break;
+        case 'S':
+            (*UListe)->posx = x+1;
+            break;
+        case 'O':
+            (*UListe)->posy = y-1;
+            break;
+        case 'E':
+            (*UListe)->posy = y+1;
+            break;
+        case "NO": 
+            (*UListe)->posx = x-1;
+            (*UListe)->posy = y-1;
+            break;        
+        case "NE":
+            (*UListe)->posx = x-1;
+            (*UListe)->posy = y+1;
+            break;
+        case "SO":
+            (*UListe)->posx = x+1;
+            (*UListe)->posy = y-1;
+            break;
+        case "SE":
+            (*UListe)->posx = x+1;
+            (*UListe)->posy = y+1;
+>>>>>>> 6d3a400 (progress)
             break;
         default:
             break;
     }
 }
 
+choix= {REINE, OUVRIERE, GUERRIERE, ESCADRON}
+// 0 si pollen pas suffisant
+// 1 si tout a bien passé
+int production_ruche(UListe* ruche, Grille grid,  char* choix_prod){
 
+    if(choix_prod == REINE && grid->pollen >= 7){
+        (*UListe)-> production = REINE;
+        (*UListe)-> temps = 8;
+        (*UListe)-> toursrestant = 8;
+        return 1;
+        }
+
+    print("Pas de pollen suffisant, la quantité du pollen actuelle est: %d\n":grid->pollen);
+    return 0;   
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+<<<<<<< HEAD
 
 void production_ruche()
 // Narmin
     ;
+=======
+>>>>>>> 6d3a400 (progress)
 
 void recolter(Grille* grid, Unite* unit) {
     if (unit->temps > 0) {
@@ -241,6 +308,10 @@ int PasdeTroupes(Unite grid[LIGNES][COLONNES], char type) {
 int main() {
     srand(time(NULL));
     int fin = 0;
+<<<<<<< HEAD
+=======
+    int pollen = 10, ressourcesAbeille = 10;
+>>>>>>> 6d3a400 (progress)
     Unite grid[LIGNES][COLONNES];
     initializeGrid(grid);
 
