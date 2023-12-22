@@ -11,8 +11,8 @@
 #define ABEILLE 'A'
 #define FRELONS 'F'
 // Les types d'unites :
-#define REINEA 'r'
-#define REINEF 'rf'
+#define REINEA 'rA'
+#define REINEF 'rF'
 #define OUVRIERE 'o'
 #define ESCADRON 'e'
 #define GUERRIERE 'g'
@@ -151,9 +151,11 @@ printf("Ou se déplace l'abeille?")
 scanf("%c", &input);
 // we can gere case of error with while but i dont know if necessary
 */
+
 // Etape "Colonie d'abeilles"
 void Move_Abeille(UListe* abeille, char* input){
     // il faudra déclarer input avant d'appeler la fonction 
+    // i will change this cuz i have to check if case empty first
     switch(input){
         case 'N':
             (*UListe)->posx = x-1;
@@ -189,38 +191,59 @@ void Move_Abeille(UListe* abeille, char* input){
     }
 }
 
-choix= {REINE, OUVRIERE, GUERRIERE, ESCADRON}
+//choix= {REINE, OUVRIERE, GUERRIERE, ESCADRON}
 // 0 si pollen pas suffisant
 // 1 si tout a bien passé
-int production_ruche(UListe* ruche, Grille grid,  char* choix_prod){
+// on utilise malloc pour initilaizer une liste chainee donc pour l'utiliser on passe le pointueur *grid, pour la modifier on la passe par adresse **grid
+int production_ruche(UListe* ruche, Grille* grid,  char* choix_prod){
 
-    if(choix_prod == REINE && grid->pollen >= 7){
+    if(choix_prod == REINE && grid->pollen >= CREINEA){
         (*UListe)-> production = REINE;
-        (*UListe)-> temps = 8;
-        (*UListe)-> toursrestant = 8;
+        (*UListe)-> temps = TREINEA;
+        (*UListe)-> toursrestant = TREINEA;// still in doubt abt this
         return 1;
         }
-
-    print("Pas de pollen suffisant, la quantité du pollen actuelle est: %d\n":grid->pollen);
-    return 0;   
-
-
+    if(choix_prod == OUVRIERE && grid->pollen >= COUVRIERE){
+        (*UListe)-> production = OUVRIERE;
+        (*UListe)-> temps = TOUVRIERE;
+        (*UListe)-> toursrestant = TOUVRIERE;// 
+        return 1;
+        }
+    if(choix_prod == GUERRIERE && grid->pollen >= CGUERRIERE){
+        (*UListe)-> production = GUERRIERE;
+        (*UListe)-> temps = TGUERRIERE;
+        (*UListe)-> toursrestant = TGUERRIERE;// 
+        return 1;
+        }
+    if(choix_prod == ESCADRON && grid->pollen >= CESCADRON){
+        (*UListe)-> production = ESCADRON;
+        (*UListe)-> temps = TESCADRON;
+        (*UListe)-> toursrestant = TESCADRON;// 
+        return 1;
+        }
+    
+     print("Pas de pollen suffisant, la quantité du pollen actuelle est: %d\n":grid->pollen);
+     return 0;   
 
     }
 
 
-void recolter(Grille* grid, Unite* unit) {
-    if (unit->temps > 0) {
-        unit->temps--; 
-    } else {
-        grid->ressourcesAbeille++;
-        unit->type = -1; // pas de ressource pour les frelons
-        unit->production = RECOLTE;
-        unit->temps = TRECOLTE; 
+void recolter(Grille* grid, UListe* ouvriere) {
+    // on doit pas aussi tester si la grille est vide pour qu'elle puisse recolter
+    if ((*ouvriere)->temps > 0) {
+        (*ouvriere)->temps--; 
+    } else 
+    {
+        grid->ressourcesAbeille++; // je n'ai pas compris
+        (*ouvriere)->type = -1; // pas de ressource pour les frelons // je n'ai pas compris
+        (*ouvriere)->destx = (*ouvriere)->desty = -1; // Ouvriere immobile
+        (*ouvriere)->production = RECOLTE;
+        (*ouvriere)->temps = TRECOLTE; 
     }
 }
 
 void detruire_insecte()
+    // supprimer son unité
     // zenomium si tu veux
 
 
