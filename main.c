@@ -49,7 +49,7 @@
 // La structure Unite :
 typedef struct unite {
 char camp; // ABEILLE ou FRELON
-char type; // RUCHE, NID, REINE, OUVRIERE, GUERRIERE, ESCADRON ou FRELON
+char type; // RUCHE, NID, REINE, OUVRIERE, GUERRIERE, ESCADRON ou FREL
 int force; // la force de l'unite
 int posx, posy; // position actuelle sur la grille
 int destx, desty; // destination (negatif si immobile)
@@ -90,9 +90,9 @@ void initializeGrid(Unite grid[LIGNES][COLONNES]) {
     grid[0][2] = (Unite){ABEILLE, GUERRIERE, FGUERRIERE, 0, 2};
     grid[0][3] = (Unite){ABEILLE, ESCADRON, FESCADRON, 0, 3};
 
-    grid[LIGNES - 1][COLONNES - 1] = (Unite){FRELON, REINE, FREINE, LIGNES - 1, COLONNES - 1};//grid[17][11]
-    grid[LIGNES - 1][COLONNES - 2] = (Unite){FFRELON, FREL, FFRELON, LIGNES - 1, COLONNES - 2}; //gird[17][10]
-    grid[LIGNES - 1][COLONNES - 3] = (Unite){FRELON, FREL, FFRELON, LIGNES - 1, COLONNES - 3}; //grid[17][9]
+    grid[LIGNES - 1][COLONNES - 1] = (Unite){FRELONS, REINE, FREINE, LIGNES - 1, COLONNES - 1};//grid[17][11]
+    grid[LIGNES - 1][COLONNES - 2] = (Unite){FRELONS, FREL, FFRELON, LIGNES - 1, COLONNES - 2}; //gird[17][10]
+    grid[LIGNES - 1][COLONNES - 3] = (Unite){FRELONS, FREL, FFRELON, LIGNES - 1, COLONNES - 3}; //grid[17][9]
 }
 
 void printGrid(Unite grid[LIGNES][COLONNES]) {
@@ -111,9 +111,11 @@ void printGrid(Unite grid[LIGNES][COLONNES]) {
                 case RUCHE:
                     printf(" R ");
                     break;
-                case REINE:
-                    printf(" r ");
+                case REINEF:
+                    printf(" rF ");
                     break;
+                case REINEA:
+                    printf(" rA ");
                 case GUERRIERE:
                     printf(" G ");
                     break;
@@ -126,6 +128,9 @@ void printGrid(Unite grid[LIGNES][COLONNES]) {
                 case FREL:
                     printf(" f ");
                     break;
+                case RECOLTE:
+                    printf(" p ");
+                    break;                    
                 default:
                     printf("   ");
             }
@@ -148,6 +153,7 @@ scanf("%c", &input);
 */
 // Etape "Colonie d'abeilles"
 void Move_Abeille(UListe* abeille, char* input){
+    // il faudra déclarer input avant d'appeler la fonction 
     switch(input){
         case 'N':
             (*UListe)->posx = x-1;
@@ -221,19 +227,16 @@ void detruire_insecte()
 void tour(Unite grid[LIGNES][COLONNES], char camp) {
     // A FAIRE
 
-    //recolter(&grid, &unit);
+//recolter(&grid, &unit);
     ;
-}
-void processCampTurn(Unite grid[LIGNES][COLONNES], char camp) {
-    // A FAIRE
-}
+ }
 
 void resolveCombat(Unite* unit1, Unite* unit2) {
-    //  A FAIRE
+    //  A FAIRE;
 }
 
 void updateResources(int* pollen, int* defeatedAbeille) {
-    //  A FAIRE
+    //  A FAIRE;
 }
 
 
