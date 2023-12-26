@@ -69,10 +69,12 @@ Unite* occupant; // les autres occupants de la case
 
 // La structure Grille :
 typedef struct {
-//Case plateau[X][Y];
-Unite* abeille, frelon;
+Case plateau[X][Y];
+Unite* abeille;
+Unite* frelon;
 int tour; // Numero du tour
-int pollen, ressourcesAbeille;
+int pollen;
+int ressourcesAbeille;
 } Grille;
 
 
@@ -156,6 +158,7 @@ scanf("%c", &input);
 void Move_Abeille(UListe* abeille, char* input){
     // il faudra déclarer input avant d'appeler la fonction 
     // i will change this cuz i have to check if case empty first
+    if()
     switch(input){
         case 'N':
             (*UListe)->posx = x-1;
@@ -194,7 +197,6 @@ void Move_Abeille(UListe* abeille, char* input){
 //choix= {REINE, OUVRIERE, GUERRIERE, ESCADRON}
 // 0 si pollen pas suffisant
 // 1 si tout a bien passé
-// on utilise malloc pour initilaizer une liste chainee donc pour l'utiliser on passe le pointueur *grid, pour la modifier on la passe par adresse **grid
 int production_ruche(UListe* ruche, Grille* grid,  char* choix_prod){
 
     if(choix_prod == REINE && grid->pollen >= CREINEA){
@@ -244,7 +246,7 @@ void recolter(Grille* grid, UListe* ouvriere) {
 
 void detruire_insecte()
     // supprimer son unité
-    // zenomium si tu veux
+    // zenomium 
 
 
 void tour(Unite grid[LIGNES][COLONNES], char camp) {
