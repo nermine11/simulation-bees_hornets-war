@@ -2,14 +2,14 @@
 #include <stdio.h>
 #include<stdlib.h>
 #include<time.h>
-
+#include<string.h>
 
 // Dimensions de la grille en nombre de cases (origine en haut a gauche) :
 #define COLONNES 12
 #define LIGNES 18
 // Les deux camps :
 #define ABEILLE 'A'
-#define FRELONS 'F'
+#define FRELON 'F'
 // Les types d'unites :
 #define REINEA 'rA'
 #define REINEF 'rF'
@@ -49,7 +49,7 @@
 // La structure Unite :
 typedef struct unite {
 char camp; // ABEILLE ou FRELON
-char type; // RUCHE, NID, REINE, OUVRIERE, GUERRIERE, ESCADRON ou FREL
+char type; // RUCHE, NID, REINEA, REINEF, OUVRIERE, GUERRIERE, ESCADRON ou FREL
 int force; // la force de l'unite
 int posx, posy; // position actuelle sur la grille
 int destx, desty; // destination (negatif si immobile)
@@ -69,7 +69,7 @@ Unite* occupant; // les autres occupants de la case
 
 // La structure Grille :
 typedef struct {
-Case plateau[X][Y];
+Case plateau[LIGNES][COLONNES];// les valeurs du 2dim tableau plateaux sont des cases
 Unite* abeille;
 Unite* frelon;
 int tour; // Numero du tour
@@ -78,7 +78,51 @@ int ressourcesAbeille;
 } Grille;
 
 
+Unite* initializeUnite(char camp, char type, int force, int posx, int posy, int destx, int desty, char production, 
+int temps, int toursrestant ){
 
+    Unite* new_unit = (Unite*) malloc(sizeof(Unite));
+    if(!new_unit){
+        return new_unit;
+    }
+    new_unit->camp = camp;
+    new_unit->type = type;
+    new_unit->force = force;
+    new_unit->posx = posx;
+    new_unit->posy = posy;
+    new_unit->destx = destx;
+    new_unit->desty = desty;
+    new_unit->production = production;
+    new_unit->temps= temps;
+    new_unit->toursrestant = toursrestant;
+    new_unit->usuiv = NULL;
+    new_unit->uprec = NULL;
+    new_unit->colsuiv = NULL;
+    new_unit->colprec = NULL;
+    new_unit->vsuiv= NULL;
+    new_unit->vprec = NULL;
+
+    return new_unit;
+}
+
+Unite* ruche1 = initializeUnite(ABEILLE, RUCHE, 0, 0, -1, -1, "X", -1, -1)
+Unite* reine1 = initializeUnite(ABEILLE, REINE, FREINE, 0, 1, -1, -1, "X", -1, -1 )
+Unite* ouvriere1 = initializeUnite(ABEILLE, OUVRIERE, FOUVRIERE, 0, 2, -1, -1, "X", -1, -1)
+Unite* guerriere1 = initializeUnite(ABEILLE, GUERRIERE, FGUERRIERE, 0, 3,-1, -1, "X", -1, -1)
+ruche1-> uprec = NULL; ruche1->usuiv = reine1; 
+reine1->uprec = ruche1; reine1->usuiv = ouvriere1; 
+ouvriere1->uprec = reine1; ouvriere1->usuiv = guerriere1;
+guerriere1->uprec = ouvriere1; guerriere1->usuiv = NULL;
+reine1-> colsuiv = reine1 ->colprex = NULL;
+ouvriere1-> colsuiv = ouvriere1 ->colprex = NULL;
+guerriere1-> colsuiv = guerriere1 ->colprex = NULL;
+
+
+
+
+
+
+/* to change zinom
 void initializeGrid(Unite grid[LIGNES][COLONNES]) {
     for (int i = 0; i < LIGNES; ++i) {
         for (int j = 0; j < COLONNES; ++j) {
@@ -96,7 +140,7 @@ void initializeGrid(Unite grid[LIGNES][COLONNES]) {
     grid[LIGNES - 1][COLONNES - 2] = (Unite){FRELONS, FREL, FFRELON, LIGNES - 1, COLONNES - 2}; //gird[17][10]
     grid[LIGNES - 1][COLONNES - 3] = (Unite){FRELONS, FREL, FFRELON, LIGNES - 1, COLONNES - 3}; //grid[17][9]
 }
-
+*/
 void printGrid(Unite grid[LIGNES][COLONNES]) {
     for (int i = 0; i < LIGNES; ++i) {
         for (int j = 0; j < COLONNES; ++j) {
@@ -155,43 +199,59 @@ scanf("%c", &input);
 */
 
 // Etape "Colonie d'abeilles"
-void Move_Abeille(UListe* abeille, char* input){
-    // il faudra déclarer input avant d'appeler la fonction 
-    // i will change this cuz i have to check if case empty first
-    if()
-    switch(input){
-        case 'N':
-            (*UListe)->posx = x-1;
-            break;
-        case 'S':
-            (*UListe)->posx = x+1;
-            break;
-        case 'O':
-            (*UListe)->posy = y-1;
-            break;
-        case 'E':
-            (*UListe)->posy = y+1;
-            break;
-        case "NO": 
-            (*UListe)->posx = x-1;
-            (*UListe)->posy = y-1;
-            break;        
-        case "NE":
-            (*UListe)->posx = x-1;
-            (*UListe)->posy = y+1;
-            break;
-        case "SO":
-            (*UListe)->posx = x+1;
-            (*UListe)->posy = y-1;
-            break;
-        case "SE":
-            (*UListe)->posx = x+1;
-            (*UListe)->posy = y+1;
-            break;
-        default:
-            break;
 
+
+
+// vérifier si la case est vide pour déplacer l'abeille
+int isValidMove(Grille *grid, int posX, int posY) {
+    return !grid->plateau[posX][posY].colonie &&
+           !grid->plateau[posX][posY].occupant;
+}
+
+
+// 1 si tout est bon
+// 0 si la case n'est
+int Move_Abeille(UListe* abeille, char* input, Grille* grid){
+
+    if (!strcmp(input, "N") && isValidMove(grid, (*UListe)->posx - 1, (*UListe)->posy)) {
+        (*UListe)->posx -= 1;
+        return 1;
     }
+    if (!strcmp(input, "s") && isValidMove(grid, (*UListe)->posx + 1, (*UListe)->posy)) {
+        (*UListe)->posx += 1;
+        return 1;
+    }
+    if (!strcmp(input, "O") && isValidMove(grid, (*UListe)->posx, (*UListe)->posy - 1)) {
+        (*UListe)->posy- = 1 ;
+        return 1;
+    }
+    if (!strcmp(input, "E") && isValidMove(grid, (*UListe)->posx , (*UListe)->posy + 1)) {
+        (*UListe)->posy+ = 1 ;
+        return 1;
+    }
+    if (!strcmp(input, "NO") && isValidMove(grid, (*UListe)->posx - 1, (*UListe)->posy - 1)) {
+        (*UListe)->posx -= 1;
+        (*UListe)->posy -= 1;
+        return 1;
+    }    
+    if (!strcmp(input, "NE") && isValidMove(grid, (*UListe)->posx - 1, (*UListe)->posy + 1)) {
+        (*UListe)->posx -= 1;
+        (*UListe)->posy += 1;
+        return 1;
+    }    
+    if (!strcmp(input, "SO") && isValidMove(grid, (*UListe)->posx + 1, (*UListe)->posy - 1)) {
+        (*UListe)->posx += 1;
+        (*UListe)->posy -= 1;
+        return 1;
+    }    
+    if (!strcmp(input, "SE") && isValidMove(grid, (*UListe)->posx + 1, (*UListe)->posy + 1)) {
+        (*UListe)->posx += 1;
+        (*UListe)->posy += 1;
+        return 1;
+    }    
+    printf("Case non vide");
+    return 0;
+
 }
 
 //choix= {REINE, OUVRIERE, GUERRIERE, ESCADRON}
@@ -199,25 +259,25 @@ void Move_Abeille(UListe* abeille, char* input){
 // 1 si tout a bien passé
 int production_ruche(UListe* ruche, Grille* grid,  char* choix_prod){
 
-    if(choix_prod == REINE && grid->pollen >= CREINEA){
+    if(!(strcmp(choix_prod, "REINE")) && grid->pollen >= CREINEA){
         (*UListe)-> production = REINE;
         (*UListe)-> temps = TREINEA;
-        (*UListe)-> toursrestant = TREINEA;// still in doubt abt this
+        (*UListe)-> toursrestant = TREINEA;
         return 1;
         }
-    if(choix_prod == OUVRIERE && grid->pollen >= COUVRIERE){
+    if(!(strcmp(choix_prod, "OUVRIERE")) && grid->pollen >= COUVRIERE){
         (*UListe)-> production = OUVRIERE;
         (*UListe)-> temps = TOUVRIERE;
         (*UListe)-> toursrestant = TOUVRIERE;// 
         return 1;
         }
-    if(choix_prod == GUERRIERE && grid->pollen >= CGUERRIERE){
+    if(!(strcmp(choix_prod, "GUERRIERE")) && grid->pollen >= CGUERRIERE){
         (*UListe)-> production = GUERRIERE;
         (*UListe)-> temps = TGUERRIERE;
         (*UListe)-> toursrestant = TGUERRIERE;// 
         return 1;
         }
-    if(choix_prod == ESCADRON && grid->pollen >= CESCADRON){
+    if(!(strcmp(choix_prod, "ESCADRON")) && grid->pollen >= CESCADRON){
         (*UListe)-> production = ESCADRON;
         (*UListe)-> temps = TESCADRON;
         (*UListe)-> toursrestant = TESCADRON;// 
@@ -280,7 +340,7 @@ int PasdeTroupes(Unite grid[LIGNES][COLONNES], char type) {
 int main() {
     srand(time(NULL));
     int fin = 0;
-    Unite grid[LIGNES][COLONNES];
+    Unite grid[LIGNES][COLONNES]; // should be case plateau[LIGNES][COLONNES] zenom
     initializeGrid(grid);
 
     while (!fin) {
