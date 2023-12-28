@@ -197,40 +197,40 @@ int case_vide(Grille *grid, int posX, int posY) {
 // 0 si la case n'est pas vide
 int Move_Abeille(UListe* abeille, Grille* grid, char* input){
 
-    if (!strcmp(input, "N") && case_vide(grid, (*UListe)->posx - 1, (*UListe)->posy)) {
-        (*UListe)->posx -= 1;
+    if (!strcmp(input, "N") && case_vide(grid, (*abeille)->posx - 1, (*abeille)->posy)) {
+        (*abeille)->posx -= 1;
         return 1;
     }
-    if (!strcmp(input, "s") && case_vide(grid, (*UListe)->posx + 1, (*UListe)->posy)) {
-        (*UListe)->posx += 1;
+    if (!strcmp(input, "s") && case_vide(grid, (*abeille)->posx + 1, (*abeille)->posy)) {
+        (*abeille)->posx += 1;
         return 1;
     }
-    if (!strcmp(input, "O") && case_vide(grid, (*UListe)->posx, (*UListe)->posy - 1)) {
-        (*UListe)->posy -= 1;
+    if (!strcmp(input, "O") && case_vide(grid, (*abeille)->posx, (*abeille)->posy - 1)) {
+        (*abeille)->posy -= 1;
         return 1;
     }
-    if (!strcmp(input, "E") && case_vide(grid, (*UListe)->posx , (*UListe)->posy + 1)) {
-        (*UListe)->posy += 1;
+    if (!strcmp(input, "E") && case_vide(grid, (*abeille)->posx , (*abeille)->posy + 1)) {
+        (*abeille)->posy += 1;
         return 1;
     }
-    if (!strcmp(input, "NO") && case_vide(grid, (*UListe)->posx - 1, (*UListe)->posy - 1)) {
-        (*UListe)->posx -= 1;
-        (*UListe)->posy -= 1;
+    if (!strcmp(input, "NO") && case_vide(grid, (*abeille)->posx - 1, (*abeille)->posy - 1)) {
+        (*abeille)->posx -= 1;
+        (*abeille)->posy -= 1;
         return 1;
     }    
-    if (!strcmp(input, "NE") && case_vide(grid, (*UListe)->posx - 1, (*UListe)->posy + 1)) {
-        (*UListe)->posx -= 1;
-        (*UListe)->posy += 1;
+    if (!strcmp(input, "NE") && case_vide(grid, (*abeille)->posx - 1, (*abeille)->posy + 1)) {
+        (*abeille)->posx -= 1;
+        (*abeille)->posy += 1;
         return 1;
     }    
-    if (!strcmp(input, "SO") && case_vide(grid, (*UListe)->posx + 1, (*UListe)->posy - 1)) {
-        (*UListe)->posx += 1;
-        (*UListe)->posy -= 1;
+    if (!strcmp(input, "SO") && case_vide(grid, (*abeille)->posx + 1, (*abeille)->posy - 1)) {
+        (*abeille)->posx += 1;
+        (*abeille)->posy -= 1;
         return 1;
     }    
-    if (!strcmp(input, "SE") && case_vide(grid, (*UListe)->posx + 1, (*UListe)->posy + 1)) {
-        (*UListe)->posx += 1;
-        (*UListe)->posy += 1;
+    if (!strcmp(input, "SE") && case_vide(grid, (*abeille)->posx + 1, (*abeille)->posy + 1)) {
+        (*abeille)->posx += 1;
+        (*abeille)->posy += 1;
         return 1;
     }    
     printf("Case non vide");
@@ -239,32 +239,35 @@ int Move_Abeille(UListe* abeille, Grille* grid, char* input){
 }
 
 //choix= {REINE, OUVRIERE, GUERRIERE, ESCADRON}
+/*pick choix, check what is choix, check if pollen is good, after u finish 
+link it to its ruche liste and choose its posx and posy to be placé 
+sur une case libre voisine*/
 // 0 si pollen pas suffisant
 // 1 si tout a bien passé
 int production_ruche(UListe* ruche, Grille* grid,  char* choix_prod){
 
     if(!(strcmp(choix_prod, "REINE")) && grid->pollen >= CREINEA){
-        (*UListe)-> production = REINE;
-        (*UListe)-> temps = TREINEA;
-        (*UListe)-> toursrestant = TREINEA;
+        (*ruche)-> production = REINE;
+        (*ruche)-> temps = TREINEA;
+        (*ruche)-> toursrestant = TREINEA;
         return 1;
         }
     if(!(strcmp(choix_prod, "OUVRIERE")) && grid->pollen >= COUVRIERE){
-        (*UListe)-> production = OUVRIERE;
-        (*UListe)-> temps = TOUVRIERE;
-        (*UListe)-> toursrestant = TOUVRIERE;
+        (*ruche)-> production = OUVRIERE;
+        (*ruche)-> temps = TOUVRIERE;
+        (*ruche)-> toursrestant = TOUVRIERE;
         return 1;
         }
     if(!(strcmp(choix_prod, "GUERRIERE")) && grid->pollen >= CGUERRIERE){
-        (*UListe)-> production = GUERRIERE;
-        (*UListe)-> temps = TGUERRIERE;
-        (*UListe)-> toursrestant = TGUERRIERE; 
+        (*ruche)-> production = GUERRIERE;
+        (*ruche)-> temps = TGUERRIERE;
+        (*ruche)-> toursrestant = TGUERRIERE; 
         return 1;
         }
     if(!(strcmp(choix_prod, "ESCADRON")) && grid->pollen >= CESCADRON){
-        (*UListe)-> production = ESCADRON;
-        (*UListe)-> temps = TESCADRON;
-        (*UListe)-> toursrestant = TESCADRON;
+        (*ruche)-> production = ESCADRON;
+        (*ruche)-> temps = TESCADRON;
+        (*ruche)-> toursrestant = TESCADRON;
         return 1;
         }
     
