@@ -197,40 +197,40 @@ int case_vide(Grille *grid, int posX, int posY) {
 // 0 si la case n'est pas vide
 int Move_Abeille(UListe* abeille, Grille* grid, char* input){
 
-    if (!strcmp(input, "N") && case_vide(grid, (UListe*)->posx - 1, (UListe*)->posy)) {
-        (UListe*)->posx -= 1;
+    if (!strcmp(input, "N") && case_vide(grid, (*UListe)->posx - 1, (*UListe)->posy)) {
+        (*UListe)->posx -= 1;
         return 1;
     }
-    if (!strcmp(input, "s") && case_vide(grid, (UListe*)->posx + 1, (UListe*)->posy)) {
-        (UListe*)->posx += 1;
+    if (!strcmp(input, "s") && case_vide(grid, (*UListe)->posx + 1, (*UListe)->posy)) {
+        (*UListe)->posx += 1;
         return 1;
     }
-    if (!strcmp(input, "O") && case_vide(grid, (UListe*)->posx, (UListe*)->posy - 1)) {
-        (UListe*)->posy -= 1;
+    if (!strcmp(input, "O") && case_vide(grid, (*UListe)->posx, (*UListe)->posy - 1)) {
+        (*UListe)->posy -= 1;
         return 1;
     }
-    if (!strcmp(input, "E") && case_vide(grid, (UListe*)->posx , (UListe*)->posy + 1)) {
-        (UListe*)->posy += 1;
+    if (!strcmp(input, "E") && case_vide(grid, (*UListe)->posx , (*UListe)->posy + 1)) {
+        (*UListe)->posy += 1;
         return 1;
     }
-    if (!strcmp(input, "NO") && case_vide(grid, (UListe*)->posx - 1, (UListe*)->posy - 1)) {
-        (UListe*)->posx -= 1;
-        (UListe*)->posy -= 1;
+    if (!strcmp(input, "NO") && case_vide(grid, (*UListe)->posx - 1, (*UListe)->posy - 1)) {
+        (*UListe)->posx -= 1;
+        (*UListe)->posy -= 1;
         return 1;
     }    
-    if (!strcmp(input, "NE") && case_vide(grid, (UListe*)->posx - 1, (UListe*)->posy + 1)) {
-        (UListe*)->posx -= 1;
-        (UListe*)->posy += 1;
+    if (!strcmp(input, "NE") && case_vide(grid, (*UListe)->posx - 1, (*UListe)->posy + 1)) {
+        (*UListe)->posx -= 1;
+        (*UListe)->posy += 1;
         return 1;
     }    
-    if (!strcmp(input, "SO") && case_vide(grid, (UListe*)->posx + 1, (UListe*)->posy - 1)) {
-        (UListe*)->posx += 1;
-        (UListe*)->posy -= 1;
+    if (!strcmp(input, "SO") && case_vide(grid, (*UListe)->posx + 1, (*UListe)->posy - 1)) {
+        (*UListe)->posx += 1;
+        (*UListe)->posy -= 1;
         return 1;
     }    
-    if (!strcmp(input, "SE") && case_vide(grid, (UListe*)->posx + 1, (UListe*)->posy + 1)) {
-        (UListe*)->posx += 1;
-        (UListe*)->posy += 1;
+    if (!strcmp(input, "SE") && case_vide(grid, (*UListe)->posx + 1, (*UListe)->posy + 1)) {
+        (*UListe)->posx += 1;
+        (*UListe)->posy += 1;
         return 1;
     }    
     printf("Case non vide");
@@ -244,27 +244,27 @@ int Move_Abeille(UListe* abeille, Grille* grid, char* input){
 int production_ruche(UListe* ruche, Grille* grid,  char* choix_prod){
 
     if(!(strcmp(choix_prod, "REINE")) && grid->pollen >= CREINEA){
-        (UListe*)-> production = REINE;
-        (UListe*)-> temps = TREINEA;
-        (UListe*)-> toursrestant = TREINEA;
+        (*UListe)-> production = REINE;
+        (*UListe)-> temps = TREINEA;
+        (*UListe)-> toursrestant = TREINEA;
         return 1;
         }
     if(!(strcmp(choix_prod, "OUVRIERE")) && grid->pollen >= COUVRIERE){
-        (UListe*)-> production = OUVRIERE;
-        (UListe*)-> temps = TOUVRIERE;
-        (UListe*)-> toursrestant = TOUVRIERE;// 
+        (*UListe)-> production = OUVRIERE;
+        (*UListe)-> temps = TOUVRIERE;
+        (*UListe)-> toursrestant = TOUVRIERE;// 
         return 1;
         }
     if(!(strcmp(choix_prod, "GUERRIERE")) && grid->pollen >= CGUERRIERE){
-        (UListe*)-> production = GUERRIERE;
-        (UListe*)-> temps = TGUERRIERE;
-        (UListe*)-> toursrestant = TGUERRIERE;// 
+        (*UListe)-> production = GUERRIERE;
+        (*UListe)-> temps = TGUERRIERE;
+        (*UListe)-> toursrestant = TGUERRIERE;// 
         return 1;
         }
     if(!(strcmp(choix_prod, "ESCADRON")) && grid->pollen >= CESCADRON){
-        (UListe*)-> production = ESCADRON;
-        (UListe*)-> temps = TESCADRON;
-        (UListe*)-> toursrestant = TESCADRON;// 
+        (*UListe)-> production = ESCADRON;
+        (*UListe)-> temps = TESCADRON;
+        (*UListe)-> toursrestant = TESCADRON;// 
         return 1;
         }
     
