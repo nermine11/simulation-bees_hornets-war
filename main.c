@@ -102,14 +102,6 @@ int temps, int toursrestant ){
     return new_unit;
 }
 
-    Unite* ruche1 = initializeUnite(ABEILLE, RUCHE, 0, 0, -1, -1, "X", -1, -1)
-    Unite* reine1 = initializeUnite(ABEILLE, REINE, FREINE, 3, 3, -1, -1, "X", -1, -1 )//pos(3,3)
-    Unite* ouvriere1 = initializeUnite(ABEILLE, OUVRIERE, FOUVRIERE, 8, 3, -1, -1, "X", -1, -1)//(8,3)
-    Unite* guerriere1 = initializeUnite(ABEILLE, GUERRIERE, FGUERRIERE, 5, 4,-1, -1, "X", -1, -1)//(5,4)
-    ruche1->usuiv = reine1; 
-    reine1->uprec = ruche1; reine1->usuiv = ouvriere1; 
-    ouvriere1->uprec = reine1; ouvriere1->usuiv = guerriere1;
-    guerriere1->uprec = ouvriere1;
 
 
 
@@ -332,13 +324,13 @@ int main() {
     srand(time(NULL));
     int fin = 0;
     Unite* ruche1 = initializeUnite(ABEILLE, RUCHE, 0, 0, -1, -1, "X", -1, -1)
-    Unite* reine1 = initializeUnite(ABEILLE, REINE, FREINE, 0, 1, -1, -1, "X", -1, -1 )
-    Unite* ouvriere1 = initializeUnite(ABEILLE, OUVRIERE, FOUVRIERE, 0, 2, -1, -1, "X", -1, -1)
-    Unite* guerriere1 = initializeUnite(ABEILLE, GUERRIERE, FGUERRIERE, 0, 3,-1, -1, "X", -1, -1)
+    Unite* reine1 = initializeUnite(ABEILLE, REINE, FREINE, 3, 3, -1, -1, "X", -1, -1 )//pos(3,3)
+    Unite* ouvriere1 = initializeUnite(ABEILLE, OUVRIERE, FOUVRIERE, 8, 3, -1, -1, "X", -1, -1)//(8,3)
+    Unite* guerriere1 = initializeUnite(ABEILLE, GUERRIERE, FGUERRIERE, 5, 4,-1, -1, "X", -1, -1)//(5,4)
     ruche1->usuiv = reine1; 
     reine1->uprec = ruche1; reine1->usuiv = ouvriere1; 
     ouvriere1->uprec = reine1; ouvriere1->usuiv = guerriere1;
-    guerriere1->uprec = ouvriere1
+    guerriere1->uprec = ouvriere1;
 
 
 
