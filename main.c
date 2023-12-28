@@ -252,19 +252,19 @@ int production_ruche(UListe* ruche, Grille* grid,  char* choix_prod){
     if(!(strcmp(choix_prod, "OUVRIERE")) && grid->pollen >= COUVRIERE){
         (*UListe)-> production = OUVRIERE;
         (*UListe)-> temps = TOUVRIERE;
-        (*UListe)-> toursrestant = TOUVRIERE;// 
+        (*UListe)-> toursrestant = TOUVRIERE;
         return 1;
         }
     if(!(strcmp(choix_prod, "GUERRIERE")) && grid->pollen >= CGUERRIERE){
         (*UListe)-> production = GUERRIERE;
         (*UListe)-> temps = TGUERRIERE;
-        (*UListe)-> toursrestant = TGUERRIERE;// 
+        (*UListe)-> toursrestant = TGUERRIERE; 
         return 1;
         }
     if(!(strcmp(choix_prod, "ESCADRON")) && grid->pollen >= CESCADRON){
         (*UListe)-> production = ESCADRON;
         (*UListe)-> temps = TESCADRON;
-        (*UListe)-> toursrestant = TESCADRON;// 
+        (*UListe)-> toursrestant = TESCADRON;
         return 1;
         }
     
@@ -321,21 +321,27 @@ int PasdeTroupes(Unite grid[LIGNES][COLONNES], char type) {
     return 1;
 }
 
+
+
+
 int main() {
     srand(time(NULL));
     int fin = 0;
     Unite* ruche1 = initializeUnite(ABEILLE, RUCHE, 0, 0, -1, -1, "X", -1, -1)
     Unite* reine1 = initializeUnite(ABEILLE, REINE, FREINE, 3, 3, -1, -1, "X", -1, -1 )//pos(3,3)
+    Unite* reine1_2 = initializeUnite(ABEILLE, REINE, FREINE, 4, 5, -1, -1, "X", -1, -1 )//pos(4,5)
     Unite* ouvriere1 = initializeUnite(ABEILLE, OUVRIERE, FOUVRIERE, 8, 3, -1, -1, "X", -1, -1)//(8,3)
     Unite* guerriere1 = initializeUnite(ABEILLE, GUERRIERE, FGUERRIERE, 5, 4,-1, -1, "X", -1, -1)//(5,4)
+    Unite* escadron1 = initializeUnite(ABEILLE, ESCADRON, FESCADRON, 10, 7,-1, -1, "X", -1, -1)//(10,7)
     ruche1->usuiv = reine1; 
-    reine1->uprec = ruche1; reine1->usuiv = ouvriere1; 
-    ouvriere1->uprec = reine1; ouvriere1->usuiv = guerriere1;
-    guerriere1->uprec = ouvriere1;
+    reine1->uprec = ruche1; reine1->usuiv = reine1_2; 
+    reine1_2->uprec = reine1; reine1_2->usuiv = ouvriere1;
+    ouvriere1->uprec = reine1_2; ouvriere1->usuiv = guerriere1;
+    guerriere1->uprec = ouvriere1; guerriere1->usuiv = escadron1;
+    escadron1->uprec = guerriere1;
 
 
 
-    
     Unite grid[LIGNES][COLONNES]; // should be case plateau[LIGNES][COLONNES] zenom
     initializeGrid(grid);
 
