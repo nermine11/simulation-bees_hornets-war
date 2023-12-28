@@ -239,9 +239,13 @@ int Move_Abeille(UListe* abeille, Grille* grid, char* input){
 }
 
 //choix= {REINE, OUVRIERE, GUERRIERE, ESCADRON}
-/*pick choix, check what is choix, check if pollen is good, after u finish 
+/*pick choix in main,in production_ruche check what is choix, check if pollen is good,
+intilalize ruche->production, temps, toursrestant
+A chaque tour il faux diminuer toursrestant et 
+quand tourrestant = 0 on initlize la nouvelle unité produite
 link it to its ruche liste and choose its posx and posy to be placé 
 sur une case libre voisine*/
+
 // 0 si pollen pas suffisant
 // 1 si tout a bien passé
 int production_ruche(UListe* ruche, Grille* grid,  char* choix_prod){
@@ -275,6 +279,15 @@ int production_ruche(UListe* ruche, Grille* grid,  char* choix_prod){
      return 0;   
 
     }
+
+
+int ajout_abeille_produite(UListe* ruche, Grille* grid, char* choix_prod){
+        
+
+
+}
+
+
 
 
 void recolter(Grille* grid, UListe* ouvriere) {
