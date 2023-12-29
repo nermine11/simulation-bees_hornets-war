@@ -78,9 +78,56 @@ int ressourcesAbeille;
 } Grille;
 
 
-Unite* initializeUnite(char camp, char type, int force, int posx, int posy, int destx, int desty, char production, 
-int temps, int toursrestant ){
+// ruche est la tete de la liste chainee des unités
+int ajout_insecte_ruche(UListe* ruche, Unite* nv_unite){
+    Unite* temp  = *ruche;
+    if(!*ruche)
+        *ruche = nv_unite; 
+    while(temp->suivant){
+        temp = temp->suivant;
+    }    
+    temp->suivant = nv_unite;
+    return 1;
 
+}
+
+int ajout_insecte_case(Grille** grid, Unite* nv_unite, int x, int y){
+    Case* temp  = (*grid)->plateau[x][y];
+    if(!*temp)
+        *temp = nv_unite; 
+    while(temp->occupant){
+        temp = temp->occupant;
+    }    
+    temp->occupant = nv_unite;
+    return 1;
+
+}
+
+
+// if elt est ruche ou nid
+//if(!strcmp(unite->type, RUCHE) ||  !strcmp(unite->type, NID))
+
+// ajouter une ruche ou un nid à une case
+int ajout_ruche_nid_case(Grille** grid, Unite* unite){
+
+    Case* temp  = (*grid)->plateau[x][y];
+    if(!*temp)
+        *temp = nv_unite; 
+    while(temp->occupant){
+        temp = temp->occupant;
+    }    
+    while(temp->colonie){
+        temp = temp->colonie;
+    }    
+
+    temp->occupant = temp-> colonie = nv_unite;
+    return 1;
+
+}
+
+
+Unite* initializeUnite(Grille* grid, char camp, char type, int force, int posx, int posy, int destx, int desty, char production, 
+int temps, int toursrestant ){
     Unite* new_unit = (Unite*) malloc(sizeof(Unite));
     if(new_unit){
         new_unit->type = type;
@@ -99,6 +146,7 @@ int temps, int toursrestant ){
         new_unit->vsuiv= NULL;
         new_unit->vprec = NULL;
     } 
+
     return new_unit;
 }
 
@@ -195,101 +243,120 @@ int case_vide(Grille *grid, int posX, int posY) {
 
 // 1 si tout est bon
 // 0 si la case n'est pas vide
+// i have to link the case to it ill add it
+
 int Move_Abeille(UListe* abeille, Grille* grid, char* input){
 
-    if (!strcmp(input, "N") && case_vide(grid, (*abeille)->posx - 1, (*abeille)->posy)) {
+    if (!strcmp(input, "N") & case_vide(grid, (*abeille)->posx - 1, (*abeille)->posy)) {
         (*abeille)->posx -= 1;
+        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
         return 1;
     }
     if (!strcmp(input, "s") && case_vide(grid, (*abeille)->posx + 1, (*abeille)->posy)) {
         (*abeille)->posx += 1;
+        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
         return 1;
     }
     if (!strcmp(input, "O") && case_vide(grid, (*abeille)->posx, (*abeille)->posy - 1)) {
         (*abeille)->posy -= 1;
+        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
         return 1;
     }
     if (!strcmp(input, "E") && case_vide(grid, (*abeille)->posx , (*abeille)->posy + 1)) {
         (*abeille)->posy += 1;
+        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
         return 1;
     }
     if (!strcmp(input, "NO") && case_vide(grid, (*abeille)->posx - 1, (*abeille)->posy - 1)) {
         (*abeille)->posx -= 1;
         (*abeille)->posy -= 1;
+        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
+
         return 1;
     }    
     if (!strcmp(input, "NE") && case_vide(grid, (*abeille)->posx - 1, (*abeille)->posy + 1)) {
         (*abeille)->posx -= 1;
         (*abeille)->posy += 1;
+        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
         return 1;
     }    
     if (!strcmp(input, "SO") && case_vide(grid, (*abeille)->posx + 1, (*abeille)->posy - 1)) {
         (*abeille)->posx += 1;
         (*abeille)->posy -= 1;
+        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
         return 1;
     }    
     if (!strcmp(input, "SE") && case_vide(grid, (*abeille)->posx + 1, (*abeille)->posy + 1)) {
         (*abeille)->posx += 1;
         (*abeille)->posy += 1;
+        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
         return 1;
     }    
     printf("Case non vide");
+    (*abeille)->destx = (*abeille)->desty = -1; // same in main if user choose not to move it 
     return 0;
-
 }
 
 //choix= {REINE, OUVRIERE, GUERRIERE, ESCADRON}
-/*pick choix in main,in production_ruche check what is choix, check if pollen is good,
-intilalize ruche->production, temps, toursrestant
-A chaque tour il faux diminuer toursrestant et 
-quand tourrestant = 0 on initlize la nouvelle unité produite
-link it to its ruche liste and choose its posx and posy to be placé 
-sur une case libre voisine*/
 
-// 0 si pollen pas suffisant
+// 0 si pollen pas suffisant ou ruche en train de produire une abeille
 // 1 si tout a bien passé
 int production_ruche(UListe* ruche, Grille* grid,  char* choix_prod){
-
-    if(!(strcmp(choix_prod, "REINE")) && grid->pollen >= CREINEA){
-        (*ruche)-> production = REINE;
-        (*ruche)-> temps = TREINEA;
-        (*ruche)-> toursrestant = TREINEA;
-        return 1;
+    //*ruche points to unite
+    if(!strcmp((*ruche)->production,"-1")){ // la ruche n'est pas en train de produire une autre abeille
+        if(!(strcmp(choix_prod, "REINE")) && grid->pollen >= CREINEA){
+            (*ruche)-> production = REINE;
+            (*ruche)-> temps = TREINEA;
+            (*ruche)-> toursrestant = TREINEA;
+            return 1;
         }
-    if(!(strcmp(choix_prod, "OUVRIERE")) && grid->pollen >= COUVRIERE){
-        (*ruche)-> production = OUVRIERE;
-        (*ruche)-> temps = TOUVRIERE;
-        (*ruche)-> toursrestant = TOUVRIERE;
-        return 1;
+        if(!(strcmp(choix_prod, "OUVRIERE")) && grid->pollen >= COUVRIERE){
+            (*ruche)-> production = OUVRIERE;
+            (*ruche)-> temps = TOUVRIERE;
+            (*ruche)-> toursrestant = TOUVRIERE;
+            return 1;
         }
-    if(!(strcmp(choix_prod, "GUERRIERE")) && grid->pollen >= CGUERRIERE){
-        (*ruche)-> production = GUERRIERE;
-        (*ruche)-> temps = TGUERRIERE;
-        (*ruche)-> toursrestant = TGUERRIERE; 
-        return 1;
+        if(!(strcmp(choix_prod, "GUERRIERE")) && grid->pollen >= CGUERRIERE){
+            (*ruche)-> production = GUERRIERE;
+            (*ruche)-> temps = TGUERRIERE;
+            (*ruche)-> toursrestant = TGUERRIERE; 
+            return 1;
         }
-    if(!(strcmp(choix_prod, "ESCADRON")) && grid->pollen >= CESCADRON){
-        (*ruche)-> production = ESCADRON;
-        (*ruche)-> temps = TESCADRON;
-        (*ruche)-> toursrestant = TESCADRON;
-        return 1;
+        if(!(strcmp(choix_prod, "ESCADRON")) && grid->pollen >= CESCADRON){
+            (*ruche)-> production = ESCADRON;
+            (*ruche)-> temps = TESCADRON;
+            (*ruche)-> toursrestant = TESCADRON;
+            return 1;
         }
-    
-     print("Pas de pollen suffisant, la quantité du pollen actuelle est: %d\n":grid->pollen);
-     return 0;   
+        
+        printf("Pas de pollen suffisant, la quantité du pollen actuelle est: %d\n":grid->pollen);
+    }
+    else
+    {
+        printf("La ruche est en train de produire une autre abeille, il reste %d tours pour finir la production",(*ruche)-> toursrestant);
 
     }
+    return 0;   
+}
+
+// retourne les cases voisines libre de la ruche choisie ( posx et posy)
+int case_voisine_libre()|{
+}
 
 
+
+// check if (*ruche)-> toursrestant == 0 au début du boucle while du tour dans le main
 int ajout_abeille_produite(UListe* ruche, Grille* grid, char* choix_prod){
         
+    //ZENOM
+    // get posx and posy from case_voisine_libre and use ajout_insecte_ruche and ajout_insecte case
 
 
 }
 
 
 void recolter(Grille* grid, UListe* ouvriere) {
-    if (*ouvriere != NULL && (*ouvriere)->type == OUVRIERE) {
+    if ((*ouvriere) != NULL && (*ouvriere)->type == OUVRIERE) {
         if ((*ouvriere)->toursrestant > 0) {
             (*ouvriere)->toursrestant--;
         } else {
@@ -336,9 +403,9 @@ void updateResources(int* pollen, int* defeatedAbeille) {
 
 
 // return 1 if voisin else 0
-int voisins(Unite unit1, Unite unit2) {
-    int dx = abs(unit1.posx - unit2.posx);
-    int dy = abs(unit1.posy - unit2.posy);
+int voisins(Unite* unit1, Unite* unit2) {
+    int dx = abs(unit1->posx - unit2->posx);
+    int dy = abs(unit1->posy - unit2->posy);
     return (dx <= 1 && dy <= 1 && (dx + dy > 0));
 }
 
