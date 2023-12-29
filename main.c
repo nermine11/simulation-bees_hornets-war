@@ -289,25 +289,50 @@ int ajout_abeille_produite(UListe* ruche, Grille* grid, char* choix_prod){
 
 
 
-
+//en appeleant cette fonction on doit tester que c'est une ouvrière
 void recolter(Grille* grid, UListe* ouvriere) {
-    // on doit pas aussi tester si la grille est vide pour qu'elle puisse recolter
-    if ((*ouvriere)->temps > 0) {
-        (*ouvriere)->temps--; 
-    } else 
-    {
-        grid->ressourcesAbeille++; // je n'ai pas compris
-        (*ouvriere)->type = -1; // pas de ressource pour les frelons // je n'ai pas compris
-        (*ouvriere)->destx = (*ouvriere)->desty = -1; // Ouvriere immobile
-        (*ouvriere)->production = RECOLTE;
-        (*ouvriere)->temps = TRECOLTE; 
+    if ((*ouvriere)->toursrestant > 0) {
+        (*ouvriere)->toursrestant--; 
+    } else{
+        grid->pollen++; 
+        detruire_insecte(&grid, &ouvriere);
     }
 }
 
-void detruire_insecte()
-    // supprimer son unité
-    // zenomium 
+void detruire_insecte(Grille* grid, UListe* insecte) {
+    // Supprimer l'unité de la liste d'affiliation à la ruche ou au nid
+    if ((*insecte)->uprec != NULL) {
+        if ((*insecte)->uprec->usuiv == (*insecte)) {
+            (*insecte)->uprec->usuiv = (*insecte)->usuiv;
+        } else {
+            (*insecte)->uprec->vprec = (*insecte)->vprec;
+        }
+    } else if ((*insecte)->colprec != NULL) {
+        if ((*insecte)->colprec->colsuiv == (*insecte)) {
+            (*insecte)->colprec->colsuiv = (*insecte)->colsuiv;
+        } else {
+            (*insecte)->colprec->colprec = (*insecte)->colprec;
+        }
+    } else if ((*insecte)->vprec != NULL) {
+        if ((*insecte)->vprec->vsuiv == (*insecte)) {
+            (*insecte)->vprec->vsuiv = (*insecte)->vsuiv;
+        } else {
+            (*insecte)->vprec->vprec = (*insecte)->vprec;
+        }
+    }
 
+    // Si l'unité occupe une case, la libérer
+    int posX = (*insecte)->posx;
+    int posY = (*insecte)->posy;
+
+    if (grid->plateau[posX][posY].occupant == (*insecte)) {
+        grid->plateau[posX][posY].occupant = NULL;
+    }
+
+    // Libérer la mémoire de l'unité
+    free(*insecte);
+    *insecte = NULL;  // Afin d'éviter les pointeurs non valides
+} 
 
 void tour(Unite grid[LIGNES][COLONNES], char camp) {
     // A FAIRE
