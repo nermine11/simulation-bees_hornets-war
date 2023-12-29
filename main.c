@@ -301,25 +301,9 @@ void recolter(Grille* grid, UListe* ouvriere) {
 
 void detruire_insecte(Grille* grid, UListe* insecte) {
     // Supprimer l'unité de la liste d'affiliation à la ruche ou au nid
-    if ((*insecte)->uprec != NULL) {
+    if ((*insecte)->uprec != NULL) { //Si ce n'est pas le premier de la liste (pas ruche ou nid)
         if ((*insecte)->uprec->usuiv == (*insecte)) {
             (*insecte)->uprec->usuiv = (*insecte)->usuiv;
-        } else {
-            (*insecte)->uprec->vprec = (*insecte)->vprec;
-        }
-    } else if ((*insecte)->colprec != NULL) {
-        if ((*insecte)->colprec->colsuiv == (*insecte)) {
-            (*insecte)->colprec->colsuiv = (*insecte)->colsuiv;
-        } else {
-            (*insecte)->colprec->colprec = (*insecte)->colprec;
-        }
-    } else if ((*insecte)->vprec != NULL) {
-        if ((*insecte)->vprec->vsuiv == (*insecte)) {
-            (*insecte)->vprec->vsuiv = (*insecte)->vsuiv;
-        } else {
-            (*insecte)->vprec->vprec = (*insecte)->vprec;
-        }
-    }
 
     // Si l'unité occupe une case, la libérer
     int posX = (*insecte)->posx;
