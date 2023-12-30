@@ -63,6 +63,8 @@ struct unite *vsuiv, *vprec; // liste des autres unites sur la meme case
 
 // La structure Case :
 typedef struct {
+int x; //posx
+int y; // posy
 Unite* colonie; // S'il y a une ruche ou un nid sur la case
 Unite* occupant; // les autres occupants de la case
 } Case;
@@ -78,7 +80,6 @@ int ressourcesAbeille;
 } Grille;
 
 
-// ruche est la tete de la liste chainee des unités
 int ajout_insecte_ruche(UListe* ruche, Unite* nv_unite){
     Unite* temp  = *ruche;
     if(!*ruche)
@@ -91,7 +92,8 @@ int ajout_insecte_ruche(UListe* ruche, Unite* nv_unite){
 
 }
 
-int ajout_insecte_case(Grille** grid, Unite* nv_unite, int x, int y){
+// ajouter des insectes, ruche ou nid à leurs case
+int ajout_case(Grille** grid, Unite* nv_unite, int x, int y){
     Case* temp  = (*grid)->plateau[x][y];
     if(!*temp)
         *temp = nv_unite; 
@@ -99,31 +101,33 @@ int ajout_insecte_case(Grille** grid, Unite* nv_unite, int x, int y){
         temp = temp->occupant;
     }    
     temp->occupant = nv_unite;
+    if(!strcmp(unite->type, RUCHE) || !strcmp(unite->type, NID)) {
+        Case* temp1  = (*grid)->plateau[x][y];
+        while(temp1->colonie){
+            temp1 = temp1->colonie;
+        }    
+        temp1->colonie = nv_unite;
+
+    }  
     return 1;
 
 }
 
+// retrancher des insectes, ruche ou abeilles de leurs case quand ils sont déplacés ou détruits
+int remove_from_case(Grille** grid, Unite* unite){
 
-// if elt est ruche ou nid
-//if(!strcmp(unite->type, RUCHE) ||  !strcmp(unite->type, NID))
+    int x = unite->posx;
+    int y = unite->posy;
 
-// ajouter une ruche ou un nid à une case
-int ajout_ruche_nid_case(Grille** grid, Unite* unite){
-
-    Case* temp  = (*grid)->plateau[x][y];
-    if(!*temp)
-        *temp = nv_unite; 
-    while(temp->occupant){
-        temp = temp->occupant;
-    }    
-    while(temp->colonie){
-        temp = temp->colonie;
-    }    
-
-    temp->occupant = temp-> colonie = nv_unite;
-    return 1;
+    if (!((*grid)->plateau[x][y]))
+        return;
+    
+    
 
 }
+
+
+
 
 
 Unite* initializeUnite(Grille* grid, char camp, char type, int force, int posx, int posy, int destx, int desty, char production, 
@@ -145,6 +149,7 @@ int temps, int toursrestant ){
         new_unit->colprec = NULL;
         new_unit->vsuiv= NULL;
         new_unit->vprec = NULL;
+        ajout_insecte_case()
     } 
 
     return new_unit;
@@ -231,8 +236,6 @@ scanf("%c", &input);
 
 // Etape "Colonie d'abeilles"
 
-
-
 // vérifier si la case est vide pour déplacer l'abeille
 // 1 si vide 0 sinon
 int case_vide(Grille *grid, int posX, int posY) {
@@ -240,11 +243,33 @@ int case_vide(Grille *grid, int posX, int posY) {
            !grid->plateau[posX][posY]->occupant;
 }
 
+// retourne une cases voisine libre de la ruche choisie
+Case* case_voisine_libre(UListe ruche, Grille* grid){
+
+    int x = ruche->posx;
+    int y = ruche->posy;
+
+    if case_vide(grid, x +1, y)
+        return grid->plateau[x+1][y];
+    if case_vide(grid, x +1, y+1)
+        return grid->plateau[x+1][y+1];
+    if case_vide(grid, x , y+1)
+        return grid->plateau[x][y+1];
+    if case_vide(grid, x -1, y)
+        return grid->plateau[x-1][y];
+    if case_vide(grid, x -1, y-1)
+        return grid->plateau[x-1][y-1];
+    if case_vide(grid, x , y-1)
+        return grid->plateau[x][y-1];
+    return NULL;
+
+}
+
+
+
 
 // 1 si tout est bon
 // 0 si la case n'est pas vide
-// i have to link the case to it ill add it
-
 int Move_Abeille(UListe* abeille, Grille* grid, char* input){
 
     if (!strcmp(input, "N") & case_vide(grid, (*abeille)->posx - 1, (*abeille)->posy)) {
@@ -297,7 +322,6 @@ int Move_Abeille(UListe* abeille, Grille* grid, char* input){
     return 0;
 }
 
-//choix= {REINE, OUVRIERE, GUERRIERE, ESCADRON}
 
 // 0 si pollen pas suffisant ou ruche en train de produire une abeille
 // 1 si tout a bien passé
@@ -339,8 +363,12 @@ int production_ruche(UListe* ruche, Grille* grid,  char* choix_prod){
     return 0;   
 }
 
-// retourne les cases voisines libre de la ruche choisie ( posx et posy)
-int case_voisine_libre()|{
+// retourne une cases voisine libre de la ruche choisie ( posx et posy)
+int case_voisine_libre(UListe ruche, Grille* grid){
+
+    int x = ruche->posx;
+    int y = ruche->posy;
+    case_vide()
 }
 
 
@@ -348,7 +376,6 @@ int case_voisine_libre()|{
 // check if (*ruche)-> toursrestant == 0 au début du boucle while du tour dans le main
 int ajout_abeille_produite(UListe* ruche, Grille* grid, char* choix_prod){
         
-    //ZENOM
     // get posx and posy from case_voisine_libre and use ajout_insecte_ruche and ajout_insecte case
 
 
