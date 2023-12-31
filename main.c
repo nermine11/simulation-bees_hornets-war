@@ -71,7 +71,7 @@ Unite* occupant; // les autres occupants de la case
 
 // La structure Grille :
 typedef struct {
-Case plateau[LIGNES][COLONNES];// les valeurs du 2dim tableau plateaux sont des cases
+Case grid[LIGNES][COLONNES];// les valeurs du 2dim tableau grid sont des cases
 Unite* abeille;
 Unite* frelon;
 int tour; // Numero du tour
@@ -79,6 +79,7 @@ int pollen;
 int ressourcesAbeille;
 } Grille;
 
+<<<<<<< HEAD
 
 int ajout_insecte_ruche(UListe* ruche, Unite* nv_unite){
     Unite* temp  = *ruche;
@@ -177,6 +178,10 @@ void addUnitToList(Unite** list, TypeUnite type, int posx, int posy) {
 }
 
 void initializeGrid(Unite* grid[LIGNES][COLONNES]) {
+=======
+/* to change zinom
+void initializeGrid(Unite grid[LIGNES][COLONNES]) {
+>>>>>>> 2ebb19b (modifs)
     for (int i = 0; i < LIGNES; ++i) {
         for (int j = 0; j < COLONNES; ++j) {
             grid[i][j] = NULL;
@@ -250,7 +255,30 @@ void printGrid(Unite* grid[LIGNES][COLONNES]) {
     printf("\n");
 }
 
+//initilaize unit et ajout_unit_case
+Unite* initializeUnite(Grille* grid, char camp, char type, int force, int posx, int posy, int destx, int desty, char production, 
+int temps, int toursrestant ){
+    Unite* new_unit = (Unite*) malloc(sizeof(Unite));
+    if(new_unit){
+        new_unit->type = type;
+        new_unit->force = force;
+        new_unit->posx = posx;
+        new_unit->posy = posy;
+        new_unit->destx = destx;
+        new_unit->desty = desty;
+        new_unit->production = production;
+        new_unit->temps= temps;
+        new_unit->toursrestant = toursrestant;
+        new_unit->usuiv = NULL;
+        new_unit->uprec = NULL;
+        new_unit->colsuiv = NULL;
+        new_unit->colprec = NULL;
+        new_unit->vsuiv= NULL;
+        new_unit->vprec = NULL;
+        ajout_unite_case(grid, new_unit, posx, posy);
+    } 
 
+<<<<<<< HEAD
 
 /* in main :
  char input 
@@ -258,8 +286,73 @@ printf("Ou se déplace l'abeille?")
 scanf("%c", &input);
 // we can gere case of error with while but i dont know if necessary
 */
+=======
+    return new_unit;
+}
+>>>>>>> 2ebb19b (modifs)
 
-// Etape "Colonie d'abeilles"
+
+int ajout_insecte_ruche(UListe* ruche, Unite* nv_unite){
+    Unite* temp  = *ruche;
+    if(!*ruche)
+        *ruche = nv_unite; 
+    while(temp->suivant){
+        temp = temp->suivant;
+    }    
+    temp->suivant = nv_unite;
+    return 1;
+
+}
+
+// ajouter des insectes, ruche ou nid à leurs case
+int ajout_unite_case(Grille** grid, Unite* nv_unite, int x, int y){
+    Case* temp  = (*grid)->plateau[x][y];
+    if(!*temp)
+        *temp = nv_unite; 
+    while(temp->occupant){
+        temp = temp->occupant;
+    }    
+    temp->occupant = nv_unite;
+    if(!strcmp(unite->type, RUCHE) || !strcmp(unite->type, NID)) {
+        Case* temp1  = (*grid)->plateau[x][y];
+        while(temp1->colonie){
+            temp1 = temp1->colonie;
+        }    
+        temp1->colonie = nv_unite;
+
+    }  
+    return 1;
+
+}
+
+
+
+// retrancher des insectes, ruche ou abeilles de leurs case quand ils sont déplacés ou détruits
+int remove_from_case(Grille** grid, Unite* unite){
+    return;
+}
+
+// remove insecte from case et ruche
+void detruire_insecte(Grille* grid, UListe* insecte) {
+    // Supprimer l'unité de la liste d'affiliation à la ruche ou au nid
+    if ((*insecte)->uprec != NULL) { //Si ce n'est pas le premier de la liste (pas ruche ou nid)
+        if ((*insecte)->uprec->usuiv == (*insecte)) {
+            (*insecte)->uprec->usuiv = (*insecte)->usuiv;
+
+    // Si l'unité occupe une case, la libérer
+    int posX = (*insecte)->posx;
+    int posY = (*insecte)->posy;
+
+    if (grid->plateau[posX][posY].occupant == (*insecte)) {
+        grid->plateau[posX][posY].occupant = NULL;
+    }
+
+    // Libérer la mémoire de l'unité
+    free(*insecte);
+    *insecte = NULL;  // Afin d'éviter les pointeurs non valides
+}
+    }
+} 
 
 // vérifier si la case est vide pour déplacer l'abeille
 // 1 si vide 0 sinon
@@ -273,6 +366,7 @@ int case_vide(Grille *grid, int posX, int posY) {
     return -1; // Hors plateau
 }
 
+<<<<<<< HEAD
 int Move_Abeille(UListe* abeille, Grille* grid, char* input) {
     int newX = (*abeille)->posx;
     int newY = (*abeille)->posy;
@@ -320,13 +414,78 @@ int Move_Abeille(UListe* abeille, Grille* grid, char* input) {
 
 
 
+=======
+// 1 si tout est bon
+// 0 si la case n'est pas vide
+// delete insecte from case and link it to new case
+int deplace_insecte(UListe* insecte, Grille** grid, char* input){
+
+    if (!strcmp(input, "N") & case_vide(*grid, (*insecte)->posx - 1, (*insecte)->posy)) {
+        (*insecte)->posx -= 1;
+        remove_from_case(&grid, insecte);
+        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
+        return 1;
+    }
+    if (!strcmp(input, "s") && case_vide(*grid, (*insecte)->posx + 1, (*insecte)->posy)) {
+        (*insecte)->posx += 1;
+        remove_from_case(&grid, insecte);
+        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
+        return 1;
+    }
+    if (!strcmp(input, "O") && case_vide(*grid, (*insecte)->posx, (*insecte)->posy - 1)) {
+        (*insecte)->posy -= 1;
+        remove_from_case(&grid, insecte);
+        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
+        return 1;
+    }
+    if (!strcmp(input, "E") && case_vide(*grid, (*insecte)->posx , (*insecte)->posy + 1)) {
+        (*insecte)->posy += 1;
+        remove_from_case(&grid, insecte);
+        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
+        return 1;
+    }
+    if (!strcmp(input, "NO") && case_vide(*grid, (*insecte)->posx - 1, (*insecte)->posy - 1)) {
+        (*insecte)->posx -= 1;
+        (*insecte)->posy -= 1;
+        remove_from_case(&grid, insecte);
+        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
+        return 1;
+    }    
+    if (!strcmp(input, "NE") && case_vide(*grid, (*insecte)->posx - 1, (*insecte)->posy + 1)) {
+        (*insecte)->posx -= 1;
+        (*insecte)->posy += 1;
+        remove_from_case(&grid, insecte);
+        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
+        return 1;
+    }    
+    if (!strcmp(input, "SO") && case_vide(*grid, (*insecte)->posx + 1, (*insecte)->posy - 1)) {
+        (*insecte)->posx += 1;
+        (*insecte)->posy -= 1;
+        remove_from_case(&grid, insecte);
+        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
+        return 1;
+    }    
+    if (!strcmp(input, "SE") && case_vide(*grid, (*insecte)->posx + 1, (*insecte)->posy + 1)) {
+        (*insecte)->posx += 1;
+        (*insecte)->posy += 1;
+        remove_from_case(&grid, insecte);
+        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
+        return 1;
+    }    
+    printf("Case non vide");
+    (*insecte)->destx = (*insecte)->desty = -1; // same in main if user choose not to move it 
+    return 0;
+}
+
+
+>>>>>>> 2ebb19b (modifs)
 // 0 si pollen pas suffisant ou ruche en train de produire une abeille
 // 1 si tout a bien passé
 int production_ruche(UListe* ruche, Grille* grid,  char* choix_prod){
     //*ruche points to unite
     if(!strcmp((*ruche)->production,"-1")){ // la ruche n'est pas en train de produire une autre abeille
-        if(!(strcmp(choix_prod, "REINE")) && grid->pollen >= CREINEA){
-            (*ruche)-> production = REINE;
+        if(!(strcmp(choix_prod, "REINEA")) && grid->pollen >= CREINEA){
+            (*ruche)-> production = REINEA;
             (*ruche)-> temps = TREINEA;
             (*ruche)-> toursrestant = TREINEA;
             return 1;
@@ -360,22 +519,58 @@ int production_ruche(UListe* ruche, Grille* grid,  char* choix_prod){
     return 0;   
 }
 
-// retourne une cases voisine libre de la ruche choisie ( posx et posy)
-int case_voisine_libre(UListe ruche, Grille* grid){
+int production_nid(UListe* nid, Grille* grid,  char* choix_prod){
+    if(!strcmp((*nid)->production,"-1")){ 
+        if(!(strcmp(choix_prod, "REINEF")) && grid->pollen >= CREINEF){
+            (*ruche)-> production = REINEF;
+            (*ruche)-> temps = TREINEF;
+            (*ruche)-> toursrestant = TREINEF;
+            return 1;
+        }
+        if(!(strcmp(choix_prod, "FRELON")) && grid->pollen >= CFRELON){
+            (*ruche)-> production = FREL;
+            (*ruche)-> temps = TFRELON;
+            (*ruche)-> toursrestant = TFRELON;
+            return 1;
+        }
 
-    int x = ruche->posx;
-    int y = ruche->posy;
-    case_vide()
+        printf("Pas de ressources suffisants, la quantité des ressources actuelles est: %d\n":grid->ressourcesAbeille);
+    }
+    else
+    {
+        printf("Le nid est en train de produire un autre frelon, il reste %d tours pour finir la production",(*nid)-> toursrestant);
+
+    }
+    return 0;   
 }
 
 
+// retourne une cases voisine libre de la ruche choisie
+Case* case_voisine_libre(UListe ruche, Grille* grid){
+
+    int x = ruche->posx;
+    int y = ruche->posy;
+
+    if case_vide(grid, x +1, y)
+        return grid->plateau[x+1][y];
+    if case_vide(grid, x +1, y+1)
+        return grid->plateau[x+1][y+1];
+    if case_vide(grid, x , y+1)
+        return grid->plateau[x][y+1];
+    if case_vide(grid, x -1, y)
+        return grid->plateau[x-1][y];
+    if case_vide(grid, x -1, y-1)
+        return grid->plateau[x-1][y-1];
+    if case_vide(grid, x , y-1)
+        return grid->plateau[x][y-1];
+    return NULL;
+
+}
+
 
 // check if (*ruche)-> toursrestant == 0 au début du boucle while du tour dans le main
+// initialize abeille, link abeille to ruche, link abeille to case
 int ajout_abeille_produite(UListe* ruche, Grille* grid, char* choix_prod){
-        
-    // get posx and posy from case_voisine_libre and use ajout_insecte_ruche and ajout_insecte case
-
-
 }
 
 
@@ -390,6 +585,7 @@ void recolter(Grille* grid, UListe* ouvriere) {
     }
 }
 
+<<<<<<< HEAD
 void detruire_insecte(Grille* grid, UListe* insecte) {
     // Vérifier si c'est le premier de la liste
     if ((*insecte)->uprec != NULL) {
@@ -415,6 +611,17 @@ void detruire_insecte(Grille* grid, UListe* insecte) {
     free(*insecte);
     *insecte = NULL;  // Afin d'éviter les pointeurs non valides
 }
+=======
+
+
+
+
+
+
+
+
+
+>>>>>>> 2ebb19b (modifs)
 
 
 void tour(Unite grid[LIGNES][COLONNES], char camp) {
@@ -451,7 +658,9 @@ int PasdeTroupes(Unite grid[LIGNES][COLONNES], char type) {
 int main() {
     srand(time(NULL));
     int fin = 0;
+    Grille* grille = (Grille*)(sizeof(grille));
     Unite* ruche1 = initializeUnite(ABEILLE, RUCHE, 0, 0, -1, -1, "X", -1, -1)
+    grille->abeille = ruche1; // link grille to abeille
     Unite* reine1 = initializeUnite(ABEILLE, REINE, FREINE, 3, 3, -1, -1, "X", -1, -1 )//pos(3,3)
     Unite* reine1_2 = initializeUnite(ABEILLE, REINE, FREINE, 4, 5, -1, -1, "X", -1, -1 )//pos(4,5)
     Unite* ouvriere1 = initializeUnite(ABEILLE, OUVRIERE, FOUVRIERE, 8, 3, -1, -1, "X", -1, -1)//(8,3)
