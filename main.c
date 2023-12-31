@@ -156,28 +156,45 @@ int temps, int toursrestant ){
 }
 
 
+void addUnitToList(Unite** list, TypeUnite type, int posx, int posy) {
+    Unite* newUnit = (Unite*)malloc(sizeof(Unite));
+    if (newUnit != NULL) {
+        newUnit->type = type;
+        newUnit->posx = posx;
+        newUnit->posy = posy;
+        newUnit->next = NULL;
 
+        if (*list == NULL) {
+            *list = newUnit;
+        } else {
+            Unite* current = *list;
+            while (current->next != NULL) {
+                current = current->next;
+            }
+            current->next = newUnit;
+        }
+    }
+}
 
-/* to change zinom
-void initializeGrid(Unite grid[LIGNES][COLONNES]) {
+void initializeGrid(Unite* grid[LIGNES][COLONNES]) {
     for (int i = 0; i < LIGNES; ++i) {
         for (int j = 0; j < COLONNES; ++j) {
-            grid[i][j].type = -1;
+            grid[i][j] = NULL;
         }
     }
 
-    grid[0][0] = (Unite){ABEILLE, RUCHE, .posx = 0, .posy = 0};
-               //(Unite){.camp = ABEILLE, .type = RUCHE, .posx = 0, .posy = 0}
-    grid[0][1] = (Unite){ABEILLE, OUVRIERE, FOUVRIERE, 0, 1};
-    grid[0][2] = (Unite){ABEILLE, GUERRIERE, FGUERRIERE, 0, 2};
-    grid[0][3] = (Unite){ABEILLE, ESCADRON, FESCADRON, 0, 3};
+    // Initialiser et ajouter des unités à chaque liste chaînée
+    addUnitToList(&grid[0][0], initializeUnite(ABEILLES, RUCHE, 0, 0));
+    addUnitToList(&grid[0][0], initializeUnite(ABEILLES, OUVRIERE, 0, 1));
+    addUnitToList(&grid[0][0], initializeUnite(ABEILLES, GUERRIERE, 0, 2));
+    addUnitToList(&grid[0][0], initializeUnite(ABEILLES, ESCADRON, 0, 3)); //en haut à gauche
 
-    grid[LIGNES - 1][COLONNES - 1] = (Unite){FRELONS, REINE, FREINE, LIGNES - 1, COLONNES - 1};//grid[17][11]
-    grid[LIGNES - 1][COLONNES - 2] = (Unite){FRELONS, FREL, FFRELON, LIGNES - 1, COLONNES - 2}; //gird[17][10]
-    grid[LIGNES - 1][COLONNES - 3] = (Unite){FRELONS, FREL, FFRELON, LIGNES - 1, COLONNES - 3}; //grid[17][9]
+    addUnitToList(&grid[LIGNES - 1][COLONNES - 1], initializeUnite(FRELONS, REINE, LIGNES - 1, COLONNES - 1));
+    addUnitToList(&grid[LIGNES - 1][COLONNES - 1], initializeUnite(FRELONS, FREL, LIGNES - 1, COLONNES - 2));
+    addUnitToList(&grid[LIGNES - 1][COLONNES - 1], initializeUnite(FRELONS, FREL, LIGNES - 1, COLONNES - 3)); //en bas à droite
 }
-*/
-void printGrid(Unite grid[LIGNES][COLONNES]) {
+
+void printGrid(Unite* grid[LIGNES][COLONNES]) {
     for (int i = 0; i < LIGNES; ++i) {
         for (int j = 0; j < COLONNES; ++j) {
             printf(" - -");
@@ -189,32 +206,39 @@ void printGrid(Unite grid[LIGNES][COLONNES]) {
 
         for (int j = 0; j < COLONNES; ++j) {
             printf("|");
-            switch (grid[i][j].type) {
-                case RUCHE:
-                    printf(" R ");
-                    break;
-                case REINEF:
-                    printf(" rF ");
-                    break;
-                case REINEA:
-                    printf(" rA ");
-                case GUERRIERE:
-                    printf(" G ");
-                    break;
-                case OUVRIERE:
-                    printf(" O ");
-                    break;
-                case NID:
-                    printf(" N ");
-                    break;
-                case FREL:
-                    printf(" f ");
-                    break;
-                case RECOLTE:
-                    printf(" p ");
-                    break;                    
-                default:
-                    printf("   ");
+            
+            // Imprimer la liste chaînée d'unités à cette position
+            Unite* current = grid[i][j];
+            while (current != NULL) {
+                switch (current->type) {
+                    case RUCHE:
+                        printf(" R ");
+                        break;
+                    case REINEF:
+                        printf(" rF ");
+                        break;
+                    case REINEA:
+                        printf(" rA ");
+                        break;
+                    case GUERRIERE:
+                        printf(" G ");
+                        break;
+                    case OUVRIERE:
+                        printf(" O ");
+                        break;
+                    case NID:
+                        printf(" N ");
+                        break;
+                    case FREL:
+                        printf(" f ");
+                        break;
+                    case RECOLTE:
+                        printf(" p ");
+                        break;                    
+                    default:
+                        printf("   ");
+                }
+                current = current->next;
             }
         }
         printf("|\n");
@@ -225,6 +249,7 @@ void printGrid(Unite grid[LIGNES][COLONNES]) {
     }
     printf("\n");
 }
+
 
 
 /* in main :
@@ -238,89 +263,61 @@ scanf("%c", &input);
 
 // vérifier si la case est vide pour déplacer l'abeille
 // 1 si vide 0 sinon
+
 int case_vide(Grille *grid, int posX, int posY) {
-    return !grid->plateau[posX][posY]->colonie && //(plateau.colonie ou plateau->colonie)
-           !grid->plateau[posX][posY]->occupant;
+    // on regarde si la case fait partie du plateau
+    if (posX >= 0 && posX < LIGNES && posY >= 0 && posY < COLONNES) {
+        //on verifie si la case est vide
+        return !grid->plateau[posX][posY].colonie && !grid->plateau[posX][posY].occupant;
+    }
+    return -1; // Hors plateau
 }
 
-// retourne une cases voisine libre de la ruche choisie
-Case* case_voisine_libre(UListe ruche, Grille* grid){
+int Move_Abeille(UListe* abeille, Grille* grid, char* input) {
+    int newX = (*abeille)->posx;
+    int newY = (*abeille)->posy;
 
-    int x = ruche->posx;
-    int y = ruche->posy;
+    // on vérifie l'input
+    if (!strcmp(input, "N")) {
+        newX -= 1;
+    } else if (!strcmp(input, "S")) {
+        newX += 1;
+    } else if (!strcmp(input, "O")) {
+        newY -= 1;
+    } else if (!strcmp(input, "E")) {
+        newY += 1;
+    } else if (!strcmp(input, "NO")) {
+        newX -= 1;
+        newY -= 1;
+    } else if (!strcmp(input, "NE")) {
+        newX -= 1;
+        newY += 1;
+    } else if (!strcmp(input, "SO")) {
+        newX += 1;
+        newY -= 1;
+    } else if (!strcmp(input, "SE")) {
+        newX += 1;
+        newY += 1;
+    }
+    // on regarde si la case fait partie du plateau
+    if (posX >= 0 && posX < LIGNES && posY >= 0 && posY < COLONNES) {
+        if (case_vide(grid, newX, newY)) {
+            // on modifie la position
+            (*abeille)->x = newX;
+            (*abeille)->y = newY;
 
-    if case_vide(grid, x +1, y)
-        return grid->plateau[x+1][y];
-    if case_vide(grid, x +1, y+1)
-        return grid->plateau[x+1][y+1];
-    if case_vide(grid, x , y+1)
-        return grid->plateau[x][y+1];
-    if case_vide(grid, x -1, y)
-        return grid->plateau[x-1][y];
-    if case_vide(grid, x -1, y-1)
-        return grid->plateau[x-1][y-1];
-    if case_vide(grid, x , y-1)
-        return grid->plateau[x][y-1];
-    return NULL;
+            // ajout de l'abeille
+            ajout_insecte_case(grid, abeille, newX, newY);
 
+            return 1; // réussite
+        } else {
+            printf("Case non vide ou hors des limites\n");
+            (*abeille)->destx = (*abeille)->desty = -1; // Reset de la destination 
+            return 0; // échec
+        }
+    }
 }
 
-
-
-
-// 1 si tout est bon
-// 0 si la case n'est pas vide
-int Move_Abeille(UListe* abeille, Grille* grid, char* input){
-
-    if (!strcmp(input, "N") & case_vide(grid, (*abeille)->posx - 1, (*abeille)->posy)) {
-        (*abeille)->posx -= 1;
-        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
-        return 1;
-    }
-    if (!strcmp(input, "s") && case_vide(grid, (*abeille)->posx + 1, (*abeille)->posy)) {
-        (*abeille)->posx += 1;
-        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
-        return 1;
-    }
-    if (!strcmp(input, "O") && case_vide(grid, (*abeille)->posx, (*abeille)->posy - 1)) {
-        (*abeille)->posy -= 1;
-        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
-        return 1;
-    }
-    if (!strcmp(input, "E") && case_vide(grid, (*abeille)->posx , (*abeille)->posy + 1)) {
-        (*abeille)->posy += 1;
-        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
-        return 1;
-    }
-    if (!strcmp(input, "NO") && case_vide(grid, (*abeille)->posx - 1, (*abeille)->posy - 1)) {
-        (*abeille)->posx -= 1;
-        (*abeille)->posy -= 1;
-        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
-
-        return 1;
-    }    
-    if (!strcmp(input, "NE") && case_vide(grid, (*abeille)->posx - 1, (*abeille)->posy + 1)) {
-        (*abeille)->posx -= 1;
-        (*abeille)->posy += 1;
-        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
-        return 1;
-    }    
-    if (!strcmp(input, "SO") && case_vide(grid, (*abeille)->posx + 1, (*abeille)->posy - 1)) {
-        (*abeille)->posx += 1;
-        (*abeille)->posy -= 1;
-        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
-        return 1;
-    }    
-    if (!strcmp(input, "SE") && case_vide(grid, (*abeille)->posx + 1, (*abeille)->posy + 1)) {
-        (*abeille)->posx += 1;
-        (*abeille)->posy += 1;
-        ajout_insecte_case(&grid, abeille, (*abeille)->posx , (*abeille)->posy);
-        return 1;
-    }    
-    printf("Case non vide");
-    (*abeille)->destx = (*abeille)->desty = -1; // same in main if user choose not to move it 
-    return 0;
-}
 
 
 // 0 si pollen pas suffisant ou ruche en train de produire une abeille
@@ -394,11 +391,19 @@ void recolter(Grille* grid, UListe* ouvriere) {
 }
 
 void detruire_insecte(Grille* grid, UListe* insecte) {
-    // Supprimer l'unité de la liste d'affiliation à la ruche ou au nid
-    if ((*insecte)->uprec != NULL) { //Si ce n'est pas le premier de la liste (pas ruche ou nid)
+    // Vérifier si c'est le premier de la liste
+    if ((*insecte)->uprec != NULL) {
         if ((*insecte)->uprec->usuiv == (*insecte)) {
             (*insecte)->uprec->usuiv = (*insecte)->usuiv;
-
+        }
+    } else {
+        // C'est le premier de la liste, mettre à jour la tête de liste
+        grid->plateau[(*insecte)->posx][(*insecte)->posy].occupant = (*insecte)->usuiv;
+    }
+    // Vérifier si c'est le dernier de la liste
+    if ((*insecte)->usuiv != NULL) {
+        (*insecte)->usuiv->uprec = (*insecte)->uprec;
+    }
     // Si l'unité occupe une case, la libérer
     int posX = (*insecte)->posx;
     int posY = (*insecte)->posy;
@@ -406,11 +411,11 @@ void detruire_insecte(Grille* grid, UListe* insecte) {
     if (grid->plateau[posX][posY].occupant == (*insecte)) {
         grid->plateau[posX][posY].occupant = NULL;
     }
-
     // Libérer la mémoire de l'unité
     free(*insecte);
     *insecte = NULL;  // Afin d'éviter les pointeurs non valides
-} 
+}
+
 
 void tour(Unite grid[LIGNES][COLONNES], char camp) {
     // A FAIRE
