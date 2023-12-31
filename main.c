@@ -79,7 +79,6 @@ int pollen;
 int ressourcesAbeille;
 } Grille;
 
-<<<<<<< HEAD
 
 int ajout_insecte_ruche(UListe* ruche, Unite* nv_unite){
     Unite* temp  = *ruche;
@@ -178,10 +177,6 @@ void addUnitToList(Unite** list, TypeUnite type, int posx, int posy) {
 }
 
 void initializeGrid(Unite* grid[LIGNES][COLONNES]) {
-=======
-/* to change zinom
-void initializeGrid(Unite grid[LIGNES][COLONNES]) {
->>>>>>> 2ebb19b (modifs)
     for (int i = 0; i < LIGNES; ++i) {
         for (int j = 0; j < COLONNES; ++j) {
             grid[i][j] = NULL;
@@ -278,7 +273,6 @@ int temps, int toursrestant ){
         ajout_unite_case(grid, new_unit, posx, posy);
     } 
 
-<<<<<<< HEAD
 
 /* in main :
  char input 
@@ -286,10 +280,6 @@ printf("Ou se déplace l'abeille?")
 scanf("%c", &input);
 // we can gere case of error with while but i dont know if necessary
 */
-=======
-    return new_unit;
-}
->>>>>>> 2ebb19b (modifs)
 
 
 int ajout_insecte_ruche(UListe* ruche, Unite* nv_unite){
@@ -366,7 +356,6 @@ int case_vide(Grille *grid, int posX, int posY) {
     return -1; // Hors plateau
 }
 
-<<<<<<< HEAD
 int Move_Abeille(UListe* abeille, Grille* grid, char* input) {
     int newX = (*abeille)->posx;
     int newY = (*abeille)->posy;
@@ -414,71 +403,6 @@ int Move_Abeille(UListe* abeille, Grille* grid, char* input) {
 
 
 
-=======
-// 1 si tout est bon
-// 0 si la case n'est pas vide
-// delete insecte from case and link it to new case
-int deplace_insecte(UListe* insecte, Grille** grid, char* input){
-
-    if (!strcmp(input, "N") & case_vide(*grid, (*insecte)->posx - 1, (*insecte)->posy)) {
-        (*insecte)->posx -= 1;
-        remove_from_case(&grid, insecte);
-        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
-        return 1;
-    }
-    if (!strcmp(input, "s") && case_vide(*grid, (*insecte)->posx + 1, (*insecte)->posy)) {
-        (*insecte)->posx += 1;
-        remove_from_case(&grid, insecte);
-        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
-        return 1;
-    }
-    if (!strcmp(input, "O") && case_vide(*grid, (*insecte)->posx, (*insecte)->posy - 1)) {
-        (*insecte)->posy -= 1;
-        remove_from_case(&grid, insecte);
-        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
-        return 1;
-    }
-    if (!strcmp(input, "E") && case_vide(*grid, (*insecte)->posx , (*insecte)->posy + 1)) {
-        (*insecte)->posy += 1;
-        remove_from_case(&grid, insecte);
-        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
-        return 1;
-    }
-    if (!strcmp(input, "NO") && case_vide(*grid, (*insecte)->posx - 1, (*insecte)->posy - 1)) {
-        (*insecte)->posx -= 1;
-        (*insecte)->posy -= 1;
-        remove_from_case(&grid, insecte);
-        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
-        return 1;
-    }    
-    if (!strcmp(input, "NE") && case_vide(*grid, (*insecte)->posx - 1, (*insecte)->posy + 1)) {
-        (*insecte)->posx -= 1;
-        (*insecte)->posy += 1;
-        remove_from_case(&grid, insecte);
-        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
-        return 1;
-    }    
-    if (!strcmp(input, "SO") && case_vide(*grid, (*insecte)->posx + 1, (*insecte)->posy - 1)) {
-        (*insecte)->posx += 1;
-        (*insecte)->posy -= 1;
-        remove_from_case(&grid, insecte);
-        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
-        return 1;
-    }    
-    if (!strcmp(input, "SE") && case_vide(*grid, (*insecte)->posx + 1, (*insecte)->posy + 1)) {
-        (*insecte)->posx += 1;
-        (*insecte)->posy += 1;
-        remove_from_case(&grid, insecte);
-        ajout_unite_case(&grid, insecte, (*insecte)->posx , (*insecte)->posy);
-        return 1;
-    }    
-    printf("Case non vide");
-    (*insecte)->destx = (*insecte)->desty = -1; // same in main if user choose not to move it 
-    return 0;
-}
-
-
->>>>>>> 2ebb19b (modifs)
 // 0 si pollen pas suffisant ou ruche en train de produire une abeille
 // 1 si tout a bien passé
 int production_ruche(UListe* ruche, Grille* grid,  char* choix_prod){
@@ -585,7 +509,6 @@ void recolter(Grille* grid, UListe* ouvriere) {
     }
 }
 
-<<<<<<< HEAD
 void detruire_insecte(Grille* grid, UListe* insecte) {
     // Vérifier si c'est le premier de la liste
     if ((*insecte)->uprec != NULL) {
@@ -611,17 +534,6 @@ void detruire_insecte(Grille* grid, UListe* insecte) {
     free(*insecte);
     *insecte = NULL;  // Afin d'éviter les pointeurs non valides
 }
-=======
-
-
-
-
-
-
-
-
-
->>>>>>> 2ebb19b (modifs)
 
 
 void tour(Unite grid[LIGNES][COLONNES], char camp) {
