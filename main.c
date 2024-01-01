@@ -155,6 +155,41 @@ void printGrid(Unite* grid[LIGNES][COLONNES]) {
     printf("\n");
 }
 
+
+// ajoute à la fin d'une liste doublement chainee
+int ajout_insecte_ruche(UListe* ruche, Unite* nv_unite){
+
+    nv_unite->uprec = *ruche;
+    if(*ruche)
+        (*ruche)-> usuiv = nv_unite;
+        return 1;
+    return 0;
+}   
+
+//ajout unite à une case(ajout au debut si case vide sinon à la fin)
+int ajout_unite_case(Grille** grid, Unite* nv_unite, int x, int y){
+
+    Case* temp = &((*grid)->plateau[x][y]);//temp pointe vers la case 
+    // case vide
+    if(!temp->occupant){
+        temp->occupant = nv_unite; 
+        nv_unite->vprec = temp;
+        nv_unite->vsuiv = NULL;
+    }
+    //case non vide
+    while(temp->occupant->vsuiv){
+        temp = temp->occupant->vsuiv;
+    }
+    temp->occupant->vsuiv = nv_unite;
+    nv_unite->vprec = temp;
+    nv_unite->vsuiv = NULL;
+    
+    return 1;    
+}
+
+
+
+
 //initilaize unit et ajout_unit_case
 Unite* initializeUnite(Grille* grid, char camp, char type, int force, int posx, int posy, int destx, int desty, char production, 
 int temps, int toursrestant ){
@@ -182,45 +217,14 @@ int temps, int toursrestant ){
 }
 
 
-int ajout_insecte_ruche(UListe* ruche, Unite* nv_unite){
-    Unite* temp  = *ruche;
-    if(!*ruche)
-        *ruche = nv_unite; 
-    while(temp->suivant){
-        temp = temp->suivant;
-    }    
-    temp->suivant = nv_unite;
-    return 1;
 
-}
 
-// ajouter des insectes, ruche ou nid à leurs case
-int ajout_unite_case(Grille** grid, Unite* nv_unite, int x, int y){
-    Case* temp  = (*grid)->plateau[x][y];
-    if(!*temp)
-        *temp = nv_unite; 
-    while(temp->occupant){
-        temp = temp->occupant;
-    }    
-    temp->occupant = nv_unite;
-    if(!strcmp(unite->type, RUCHE) || !strcmp(unite->type, NID)) {
-        Case* temp1  = (*grid)->plateau[x][y];
-        while(temp1->colonie){
-            temp1 = temp1->colonie;
-        }    
-        temp1->colonie = nv_unite;
-
-    }  
-    return 1;
-
-}
 
 // retrancher des insectes, ruche ou abeilles de leurs case quand ils sont déplacés ou détruits
 int remove_from_case(Grille** grid, Unite* unite){
     
 
 }
-
 
 // remove insecte from case et ruche
 void detruire_insecte(Grille* grid, UListe* insecte) {
@@ -543,12 +547,6 @@ int main() {
     Unite* ouvriere1 = initializeUnite(ABEILLE, OUVRIERE, FOUVRIERE, 8, 3, -1, -1, "X", -1, -1)//(8,3)
     Unite* guerriere1 = initializeUnite(ABEILLE, GUERRIERE, FGUERRIERE, 5, 4,-1, -1, "X", -1, -1)//(5,4)
     Unite* escadron1 = initializeUnite(ABEILLE, ESCADRON, FESCADRON, 10, 7,-1, -1, "X", -1, -1)//(10,7)
-    ruche1->usuiv = reine1; 
-    reine1->uprec = ruche1; reine1->usuiv = reine1_2; 
-    reine1_2->uprec = reine1; reine1_2->usuiv = ouvriere1;
-    ouvriere1->uprec = reine1_2; ouvriere1->usuiv = guerriere1;
-    guerriere1->uprec = ouvriere1; guerriere1->usuiv = escadron1;
-    escadron1->uprec = guerriere1;
 
 
 
