@@ -80,6 +80,126 @@ int ressourcesAbeille;
 } Grille;
 
 
+
+// ajoute à la fin d'une liste doublement chainee
+int affilie_insecte(UListe* ruche, Unite* nv_unite){
+
+    nv_unite->uprec = *ruche;
+    if(*ruche)
+        (*ruche)-> usuiv = nv_unite;
+        return 1;
+    return 0;
+}   
+
+//ajout unite à une case(ajout au debut si case vide sinon à la fin)
+int ajout_unite_case(Grille** grid, Unite* nv_unite, int x, int y){
+
+    Case* temp = &((*grid)->plateau[x][y]);//temp pointe vers la case 
+    // case vide
+    if(!temp->occupant){
+        temp->occupant = nv_unite; 
+        nv_unite->vprec = temp;
+        nv_unite->vsuiv = NULL;
+        return 1;
+    }
+    
+    //case non vide
+    while(temp->occupant->vsuiv){
+        temp = temp->occupant->vsuiv;
+    }
+    // case contient une seule unite
+    if(!temp->occupant->vsuiv){
+        temp->occupant->vsuiv = nv_unite;
+
+    }
+    // case contient plusieurs unités
+    else
+    {
+        temp->vsuiv = nv_unite;
+
+    }
+    nv_unite->vprec = temp;
+    nv_unite->vsuiv = NULL;
+    
+    return 1;    
+}
+
+
+
+
+//initilaize unit et ajout_unit_case
+Unite* initializeUnite(Grille** grid, char camp, char type, int force, int posx, int posy, int destx, int desty, char production, 
+int temps, int toursrestant ){
+    Unite* new_unit = (Unite*) malloc(sizeof(Unite));
+    if(new_unit){
+        new_unit->type = type;
+        new_unit->force = force;
+        new_unit->posx = posx;
+        new_unit->posy = posy;
+        new_unit->destx = destx;
+        new_unit->desty = desty;
+        new_unit->production = production;
+        new_unit->temps= temps;
+        new_unit->toursrestant = toursrestant;
+        new_unit->usuiv = NULL;
+        new_unit->uprec = NULL;
+        new_unit->colsuiv = NULL;
+        new_unit->colprec = NULL;
+        new_unit->vsuiv= NULL;
+        new_unit->vprec = NULL;
+        ajout_unite_case(*grid, new_unit, posx, posy);
+    } 
+
+    return new_unit;
+}
+
+
+// j'ai modifié
+void initializeGrille(Grille* grid) {
+
+    grille->tour = 0;
+    grille->pollen = 10;
+    grille->ressourcesAbeille = 10;
+
+    for (int i = 0; i < LIGNES; ++i) {
+        for (int j = 0; j < COLONNES; ++j) {
+            grille->plateau[i][j].x = i;  
+            grille->plateau[i][j].y = j;  
+            grille->plateau[i][j].colonie = NULL;  
+            grille->plateau[i][j].occupant = NULL;  
+        }
+    }
+    int affilie_insecte(UListe* ruche, Unite* nv_unite)
+
+    Unite* ruche1 = initializeUnite(ABEILLE, RUCHE, 0, 0, -1, -1, "X", -1, -1)
+    grille->abeille = ruche1; // link grille to abeille
+    Unite* reine1 = initializeUnite(ABEILLE, REINE, FREINE, 3, 3, -1, -1, "X", -1, -1 )//pos(3,3)
+    Unite* reine1_2 = initializeUnite(ABEILLE, REINE, FREINE, 4, 5, -1, -1, "X", -1, -1 )//pos(4,5)
+    Unite* ouvriere1 = initializeUnite(ABEILLE, OUVRIERE, FOUVRIERE, 8, 3, -1, -1, "X", -1, -1)//(8,3)
+    Unite* guerriere1 = initializeUnite(ABEILLE, GUERRIERE, FGUERRIERE, 5, 4,-1, -1, "X", -1, -1)//(5,4)
+    Unite* escadron1 = initializeUnite(ABEILLE, ESCADRON, FESCADRON, 10, 7,-1, -1, "X", -1, -1)//(10,7)
+    affilie_insecte(&ruche1,reine1);
+    affilie_insecte(&ruche1,reine1_2);
+    affilie_insecte(&ruche1,ouvriere1);
+    affilie_insecte(&ruche1,guerriere1);
+    affilie_insecte(&ruche1,escadron1);
+
+    // frelons
+    Unite* nid1 = initializeUnite(FRELON, NID, 11, 17, -1, -1, "X", -1, -1)
+    grille->frelon = nid1; // link grille to frelon
+    Unite* reinef1 = initializeUnite(FRELON, REINEF, FREINE, 13, 9, -1, -1, "X", -1, -1 )//pos(13,9)
+    Unite* frelon1_1 = initializeUnite(FRELON, FREL, FFRELON, 8, 9, -1, -1, "X", -1, -1)//(8,9)
+    Unite* frelon1_2 = initializeUnite(FRELON, FREL, FFRELON, 9, 9, -1, -1, "X", -1, -1)//(9,9)
+    Unite* frelon1_3 = initializeUnite(FRELON, FREL, FFRELON, 10, 9, -1, -1, "X", -1, -1)//(10,9)
+    affilie_insecte(&nid1,reinef1);
+    affilie_insecte(&nid1,frelon1_1);
+    affilie_insecte(&nid1,frelon1_2);
+    affilie_insecte(&nid1,frelon1_3);
+
+    // reste pour initializer les frelons
+}
+
+
 void initializeGrid(Unite* grid[LIGNES][COLONNES]) {
     for (int i = 0; i < LIGNES; ++i) {
         for (int j = 0; j < COLONNES; ++j) {
@@ -99,6 +219,7 @@ void initializeGrid(Unite* grid[LIGNES][COLONNES]) {
 }
 
 
+//to modify zenom
 void printGrid(Unite* grid[LIGNES][COLONNES]) {
     for (int i = 0; i < LIGNES; ++i) {
         for (int j = 0; j < COLONNES; ++j) {
@@ -154,68 +275,6 @@ void printGrid(Unite* grid[LIGNES][COLONNES]) {
     }
     printf("\n");
 }
-
-
-// ajoute à la fin d'une liste doublement chainee
-int ajout_insecte_ruche(UListe* ruche, Unite* nv_unite){
-
-    nv_unite->uprec = *ruche;
-    if(*ruche)
-        (*ruche)-> usuiv = nv_unite;
-        return 1;
-    return 0;
-}   
-
-//ajout unite à une case(ajout au debut si case vide sinon à la fin)
-int ajout_unite_case(Grille** grid, Unite* nv_unite, int x, int y){
-
-    Case* temp = &((*grid)->plateau[x][y]);//temp pointe vers la case 
-    // case vide
-    if(!temp->occupant){
-        temp->occupant = nv_unite; 
-        nv_unite->vprec = temp;
-        nv_unite->vsuiv = NULL;
-    }
-    //case non vide
-    while(temp->occupant->vsuiv){
-        temp = temp->occupant->vsuiv;
-    }
-    temp->occupant->vsuiv = nv_unite;
-    nv_unite->vprec = temp;
-    nv_unite->vsuiv = NULL;
-    
-    return 1;    
-}
-
-
-
-
-//initilaize unit et ajout_unit_case
-Unite* initializeUnite(Grille* grid, char camp, char type, int force, int posx, int posy, int destx, int desty, char production, 
-int temps, int toursrestant ){
-    Unite* new_unit = (Unite*) malloc(sizeof(Unite));
-    if(new_unit){
-        new_unit->type = type;
-        new_unit->force = force;
-        new_unit->posx = posx;
-        new_unit->posy = posy;
-        new_unit->destx = destx;
-        new_unit->desty = desty;
-        new_unit->production = production;
-        new_unit->temps= temps;
-        new_unit->toursrestant = toursrestant;
-        new_unit->usuiv = NULL;
-        new_unit->uprec = NULL;
-        new_unit->colsuiv = NULL;
-        new_unit->colprec = NULL;
-        new_unit->vsuiv= NULL;
-        new_unit->vprec = NULL;
-        ajout_unite_case(grid, new_unit, posx, posy);
-    } 
-
-    return new_unit;
-}
-
 
 
 
@@ -486,9 +545,46 @@ Case* case_voisine_libre(UListe ruche, Grille* grid){
 }
 
 
+
 // check if (*ruche)-> toursrestant == 0 au début du boucle while du tour dans le main
 // initialize abeille, link abeille to ruche, link abeille to case
 int ajout_abeille_produite(UListe* ruche, Grille* grid, char* choix_prod){
+
+    Case* case = case_voisine_libre(*ruche, grid);
+    if (case){
+        int x = case->x;
+        int y =  case->y;
+        // initialize abeille et la liér à son case
+        if(!(strcmp(choix_prod, "REINEA")))
+            Unite* insecte = initializeUnite(&grid, ABEILLE, choix_prod, FREINE, x,y , -1,-1, "X", -1, -1);
+        if(!(strcmp(choix_prod, "OUVRIERE")))
+            Unite* insecte = initializeUnite(&grid, ABEILLE, choix_prod, FOUVRIERE, x,y , -1,-1, "X", -1, -1);
+        if(!(strcmp(choix_prod, "GUERRIERE")))
+            Unite* insecte = initializeUnite(&grid, ABEILLE, choix_prod, FGUERRIERE, x,y , -1,-1, "X", -1, -1);
+        if(!(strcmp(choix_prod, "ESCADRON")))
+            Unite* insecte = initializeUnite(&grid, ABEILLE, choix_prod, FESCADRON, x,y , -1,-1, "X", -1, -1);
+        // affilier l'abeille à sa ruche
+        affilie_insecte(ruche, insecte);
+        return 1;
+    }
+    return 0;
+}
+
+int ajout_frelon_produit(UListe* nid, Grille* grid, char* choix_prod){
+    Case* case = case_voisine_libre(*nid, grid);
+    if (case){
+        int x = case->x;
+        int y =  case->y;
+        // initialize frelon et le liér à son case
+        if(!(strcmp(choix_prod, "REINEF")))
+            Unite* insecte = initializeUnite(&grid, FRELON, choix_prod, FREINE, x,y , -1,-1, "X", -1, -1);
+        if(!(strcmp(choix_prod, "FREL")))
+            Unite* insecte = initializeUnite(&grid, FRELON, choix_prod, FFRELON, x,y , -1,-1, "X", -1, -1);
+        // affilier le frelon à son nid
+        affilie_insecte(nid, insecte);
+        return 1;
+    }
+    return 0;
 }
 
 
@@ -539,19 +635,11 @@ int PasdeTroupes(Unite grid[LIGNES][COLONNES], char type) {
 int main() {
     srand(time(NULL));
     int fin = 0;
-    Grille* grille = (Grille*)(sizeof(grille));
-    Unite* ruche1 = initializeUnite(ABEILLE, RUCHE, 0, 0, -1, -1, "X", -1, -1)
-    grille->abeille = ruche1; // link grille to abeille
-    Unite* reine1 = initializeUnite(ABEILLE, REINE, FREINE, 3, 3, -1, -1, "X", -1, -1 )//pos(3,3)
-    Unite* reine1_2 = initializeUnite(ABEILLE, REINE, FREINE, 4, 5, -1, -1, "X", -1, -1 )//pos(4,5)
-    Unite* ouvriere1 = initializeUnite(ABEILLE, OUVRIERE, FOUVRIERE, 8, 3, -1, -1, "X", -1, -1)//(8,3)
-    Unite* guerriere1 = initializeUnite(ABEILLE, GUERRIERE, FGUERRIERE, 5, 4,-1, -1, "X", -1, -1)//(5,4)
-    Unite* escadron1 = initializeUnite(ABEILLE, ESCADRON, FESCADRON, 10, 7,-1, -1, "X", -1, -1)//(10,7)
+    Grille* grid = (Grille*)(sizeof(Grille));
+    initializeGrille(grid);
 
 
 
-    Unite grid[LIGNES][COLONNES]; // should be case plateau[LIGNES][COLONNES] zenom
-    initializeGrid(grid);
 
     while (!fin) {
         char firstCamp = (rand() % 2 == 0) ? ABEILLE : FRELONS; // if random number is 0 abeille joue first else frelon
