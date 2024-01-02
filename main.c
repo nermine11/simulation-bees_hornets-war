@@ -279,12 +279,16 @@ void printGrid(Unite* grid[LIGNES][COLONNES]) {
 
 
 
-// retrancher des insectes, ruche ou abeilles de leurs case quand ils sont déplacés ou détruits
-int remove_from_case(Grille** grid, Unite* unite){
-    
-
+// retrancher des insectes, ruche ou nid de leurs case quand ils sont déplacés ou détruits
+//zenom
+int extrait_case(Grille** grid, Unite* unite){
+    return;
 }
 
+//zenom
+int extrait_insecte_affilie(Grille** grid, Unite* unite){
+    return;
+}
 // remove insecte from case et ruche
 void detruire_insecte(Grille* grid, UListe* insecte) {
     // Vérifier si c'est le premier de la liste
@@ -311,6 +315,40 @@ void detruire_insecte(Grille* grid, UListe* insecte) {
     free(*insecte);
     *insecte = NULL;  // Afin d'éviter les pointeurs non valides
 }
+//zenom
+int ajout_ruche(Grille** grid, Unite* ruche){
+    return;
+}
+//zenom
+int create_ruche(Grille**grid, Unite* ruche, Unite* reine){
+    return;
+}
+
+
+//narmin
+int extrait_ruche(Grille** grid, Unite** ruche){
+    return;
+}
+
+//zenom
+int detruit_ruche(Grille** grid, Unite** ruche){
+    return;
+}
+
+// narmin
+int extrait_nid(){
+    return;
+}
+
+int ajout_nid(){
+    return;
+}
+
+//narmin
+int Conversion_ruche_nid(Grille** grid, Unite** ruche, unite** insecte_gagnate){
+    return;
+}
+
 
 
 
@@ -338,7 +376,6 @@ void addUnitToList(Unite** list, TypeUnite type, int posx, int posy) {
 
 // vérifier si la case est vide pour déplacer l'abeille
 // 1 si vide 0 sinon
-
 int case_vide(Grille *grid, int posX, int posY) {
     // on regarde si la case fait partie du plateau
     if (posX >= 0 && posX < LIGNES && posY >= 0 && posY < COLONNES) {
@@ -346,51 +383,6 @@ int case_vide(Grille *grid, int posX, int posY) {
         return !grid->plateau[posX][posY].colonie && !grid->plateau[posX][posY].occupant;
     }
     return -1; // Hors plateau
-}
-
-int Move_Abeille(UListe* abeille, Grille* grid, char* input) {
-    int newX = (*abeille)->posx;
-    int newY = (*abeille)->posy;
-
-    // on vérifie l'input
-    if (!strcmp(input, "N")) {
-        newX -= 1;
-    } else if (!strcmp(input, "S")) {
-        newX += 1;
-    } else if (!strcmp(input, "O")) {
-        newY -= 1;
-    } else if (!strcmp(input, "E")) {
-        newY += 1;
-    } else if (!strcmp(input, "NO")) {
-        newX -= 1;
-        newY -= 1;
-    } else if (!strcmp(input, "NE")) {
-        newX -= 1;
-        newY += 1;
-    } else if (!strcmp(input, "SO")) {
-        newX += 1;
-        newY -= 1;
-    } else if (!strcmp(input, "SE")) {
-        newX += 1;
-        newY += 1;
-    }
-    // on regarde si la case fait partie du plateau
-    if (posX >= 0 && posX < LIGNES && posY >= 0 && posY < COLONNES) {
-        if (case_vide(grid, newX, newY)) {
-            // on modifie la position
-            (*abeille)->x = newX;
-            (*abeille)->y = newY;
-
-            // ajout de l'abeille
-            ajout_insecte_case(grid, abeille, newX, newY);
-
-            return 1; // réussite
-        } else {
-            printf("Case non vide ou hors des limites\n");
-            (*abeille)->destx = (*abeille)->desty = -1; // Reset de la destination 
-            return 0; // échec
-        }
-    }
 }
 
 
