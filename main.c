@@ -168,9 +168,8 @@ void initializeGrille(Grille* grid) {
             grille->plateau[i][j].occupant = NULL;  
         }
     }
- 
-
-
+    Ruche* nouvelle_ruche = new Ruche;
+    ajout_ruche(grille, ligne_ruche, colonne_ruche, nouvelle_ruche);
 }
 
 
@@ -300,9 +299,9 @@ int ajout_nid(Grille** grid, Unite* nid){
 
 
 //zenom
-int create_ruche(Grille**grid, Unite* ruche, Unite* reine){
-    return;
-}
+void ajout_ruche(Grille* grille, int ligne, int colonne, Ruche* ruche) {
+    ruche->type = RUCHE;
+    ajout_unite_case(grille, ligne, colonne, ruche);
 
 
 //extraire la ruche de la liste chainée des ruches
