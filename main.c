@@ -319,6 +319,12 @@ void detruire_insecte(Grille* grid, UListe* insecte) {
 int ajout_ruche(Grille** grid, Unite* ruche){
     return;
 }
+
+int ajout_nid(Grille** grid, Unite* nid){
+    return;
+}
+
+
 //zenom
 int create_ruche(Grille**grid, Unite* ruche, Unite* reine){
     return;
@@ -326,12 +332,7 @@ int create_ruche(Grille**grid, Unite* ruche, Unite* reine){
 
 
 //narmin
-int extrait_ruche(Grille** grid, Unite** ruche){
-    return;
-}
-
-//zenom
-int detruit_ruche(Grille** grid, Unite** ruche){
+int extrait_ruche(Grille** grid, UListe* ruche){
     return;
 }
 
@@ -340,13 +341,28 @@ int extrait_nid(){
     return;
 }
 
-int ajout_nid(){
-    return;
-}
+
 
 //narmin
-int Conversion_ruche_nid(Grille** grid, Unite** ruche, unite** insecte_gagnate){
-    return;
+int Conversion_ruche_nid(Grille** grid, UListe* ruche, UListe* insecte_gagnate){
+    
+    extrait_ruche(ruche);
+    (*ruche)-> camp = FRELON;
+    (*ruche)-> type = NID;
+    (*ruche)-> production = "X";
+    (*ruche)-> temp = (*ruche)-> toursrestant = -1:
+    Unite* temp = *ruche;
+    if((*ruche)->usuiv){
+        for(; temp->usuiv; temp = temp->usuiv){
+            detruire_insecte(&grid, &temp);
+        }
+    }
+    ajout_nid(grid, *ruche);
+    extrait_insecte_affilie(grid, *insecte_gagnate);
+    affilie_insecte(ruche, *insecte_gagnate);
+    return 1;
+
+
 }
 
 
