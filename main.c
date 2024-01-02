@@ -102,7 +102,6 @@ int ajout_unite_case(Grille** grid, Unite* nv_unite, int x, int y){
         nv_unite->vsuiv = NULL;
         return 1;
     }
-    
     //case non vide
     while(temp->occupant->vsuiv){
         temp = temp->occupant->vsuiv;
@@ -169,34 +168,9 @@ void initializeGrille(Grille* grid) {
             grille->plateau[i][j].occupant = NULL;  
         }
     }
-    int affilie_insecte(UListe* ruche, Unite* nv_unite)
+ 
 
-    Unite* ruche1 = initializeUnite(ABEILLE, RUCHE, 0, 0, -1, -1, "X", -1, -1)
-    grille->abeille = ruche1; // link grille to abeille
-    Unite* reine1 = initializeUnite(ABEILLE, REINE, FREINE, 3, 3, -1, -1, "X", -1, -1 )//pos(3,3)
-    Unite* reine1_2 = initializeUnite(ABEILLE, REINE, FREINE, 4, 5, -1, -1, "X", -1, -1 )//pos(4,5)
-    Unite* ouvriere1 = initializeUnite(ABEILLE, OUVRIERE, FOUVRIERE, 8, 3, -1, -1, "X", -1, -1)//(8,3)
-    Unite* guerriere1 = initializeUnite(ABEILLE, GUERRIERE, FGUERRIERE, 5, 4,-1, -1, "X", -1, -1)//(5,4)
-    Unite* escadron1 = initializeUnite(ABEILLE, ESCADRON, FESCADRON, 10, 7,-1, -1, "X", -1, -1)//(10,7)
-    affilie_insecte(&ruche1,reine1);
-    affilie_insecte(&ruche1,reine1_2);
-    affilie_insecte(&ruche1,ouvriere1);
-    affilie_insecte(&ruche1,guerriere1);
-    affilie_insecte(&ruche1,escadron1);
 
-    // frelons
-    Unite* nid1 = initializeUnite(FRELON, NID, 11, 17, -1, -1, "X", -1, -1)
-    grille->frelon = nid1; // link grille to frelon
-    Unite* reinef1 = initializeUnite(FRELON, REINEF, FREINE, 13, 9, -1, -1, "X", -1, -1 )//pos(13,9)
-    Unite* frelon1_1 = initializeUnite(FRELON, FREL, FFRELON, 8, 9, -1, -1, "X", -1, -1)//(8,9)
-    Unite* frelon1_2 = initializeUnite(FRELON, FREL, FFRELON, 9, 9, -1, -1, "X", -1, -1)//(9,9)
-    Unite* frelon1_3 = initializeUnite(FRELON, FREL, FFRELON, 10, 9, -1, -1, "X", -1, -1)//(10,9)
-    affilie_insecte(&nid1,reinef1);
-    affilie_insecte(&nid1,frelon1_1);
-    affilie_insecte(&nid1,frelon1_2);
-    affilie_insecte(&nid1,frelon1_3);
-
-    // reste pour initializer les frelons
 }
 
 
@@ -331,14 +305,40 @@ int create_ruche(Grille**grid, Unite* ruche, Unite* reine){
 }
 
 
-//narmin
-int extrait_ruche(Grille** grid, UListe* ruche){
-    return;
+//extraire la ruche de la liste chainée des ruches
+int extrait_ruche(UListe* ruche, Grille** grid){
+
+    //la premiere ruche initialisé
+    if ((*ruche)->colprec == *grid){
+        (*grid)->abeille =  *ruche->colsuiv;
+    };
+    if((*ruche)->colprec){
+        (*ruche)->colprec->colsuiv = (*ruche)->colsuiv;
+    }
+    if((*ruche)->colsuiv){
+        (*ruche)->colsuiv->colprec = (*ruche)->colprec;
+    }
+    (*ruche)->colprec = (*ruche)->colsuiv = NULL;
+    return 1;
+
+
 }
 
-// narmin
-int extrait_nid(){
-    return;
+int extrait_nid(UListe* nid, Grille** grid){
+
+    //la premiere ruche initialisé
+    if ((*nid)->colprec == *grid){
+        (*grid)->frelon =  *nis->colsuiv;
+    };
+    if((*nid)->colprec){
+        (*nid)->colprec->colsuiv = (*nid)->colsuiv;
+    }
+    if((*nid)->colsuiv){
+        (*nid)->colsuiv->colprec = (*nid)->colprec;
+    }
+    (*nid)->colprec = (*nid)->colsuiv = NULL;
+    return 1;
+
 }
 
 
@@ -364,7 +364,26 @@ int Conversion_ruche_nid(Grille** grid, UListe* ruche, UListe* insecte_gagnate){
 
 
 }
+int Conversion_nid_ruche(Grille** grid, UListe* nid, UListe* insecte_gagnate){
+    
+    extrait_ruche(nid);
+    (*ruche)-> camp = ABEILLE;
+    (*ruche)-> type = RUCHE;
+    (*ruche)-> production = "X";
+    (*ruche)-> temp = (*ruche)-> toursrestant = -1:
+    Unite* temp = *nid;
+    if((*nid)->usuiv){
+        for(; temp->usuiv; temp = temp->usuiv){
+            detruire_insecte(&grid, &temp);
+        }
+    }
+    ajout_nid(grid, *nid);
+    extrait_insecte_affilie(grid, *insecte_gagnate);
+    affilie_insecte(nid, *insecte_gagnate);
+    return 1;
 
+
+}
 
 
 
@@ -645,6 +664,30 @@ int main() {
     int fin = 0;
     Grille* grid = (Grille*)(sizeof(Grille));
     initializeGrille(grid);
+    Unite* ruche1 = initializeUnite(ABEILLE, RUCHE, 0, 0, -1, -1, "X", -1, -1)
+    grille->abeille = ruche1; // link grille to abeille
+    Unite* reine1 = initializeUnite(ABEILLE, REINE, FREINE, 3, 3, -1, -1, "X", -1, -1 )//pos(3,3)
+    Unite* reine1_2 = initializeUnite(ABEILLE, REINE, FREINE, 4, 5, -1, -1, "X", -1, -1 )//pos(4,5)
+    Unite* ouvriere1 = initializeUnite(ABEILLE, OUVRIERE, FOUVRIERE, 8, 3, -1, -1, "X", -1, -1)//(8,3)
+    Unite* guerriere1 = initializeUnite(ABEILLE, GUERRIERE, FGUERRIERE, 5, 4,-1, -1, "X", -1, -1)//(5,4)
+    Unite* escadron1 = initializeUnite(ABEILLE, ESCADRON, FESCADRON, 10, 7,-1, -1, "X", -1, -1)//(10,7)
+    affilie_insecte(&ruche1,reine1);
+    affilie_insecte(&ruche1,reine1_2);
+    affilie_insecte(&ruche1,ouvriere1);
+    affilie_insecte(&ruche1,guerriere1);
+    affilie_insecte(&ruche1,escadron1);
+
+    // frelons
+    Unite* nid1 = initializeUnite(FRELON, NID, 11, 17, -1, -1, "X", -1, -1)
+    grille->frelon = nid1; // link grille to frelon
+    Unite* reinef1 = initializeUnite(FRELON, REINEF, FREINE, 13, 9, -1, -1, "X", -1, -1 )//pos(13,9)
+    Unite* frelon1_1 = initializeUnite(FRELON, FREL, FFRELON, 8, 9, -1, -1, "X", -1, -1)//(8,9)
+    Unite* frelon1_2 = initializeUnite(FRELON, FREL, FFRELON, 9, 9, -1, -1, "X", -1, -1)//(9,9)
+    Unite* frelon1_3 = initializeUnite(FRELON, FREL, FFRELON, 10, 9, -1, -1, "X", -1, -1)//(10,9)
+    affilie_insecte(&nid1,reinef1);
+    affilie_insecte(&nid1,frelon1_1);
+    affilie_insecte(&nid1,frelon1_2);
+    affilie_insecte(&nid1,frelon1_3);
 
 
 
