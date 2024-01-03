@@ -156,40 +156,24 @@ int temps, int toursrestant ){
 // j'ai modifié
 void initializeGrille(Grille* grid) {
 
-    grille->tour = 0;
-    grille->pollen = 10;
-    grille->ressourcesAbeille = 10;
+    grid->tour = 0;
+    grid->pollen = 10;
+    grid->ressourcesAbeille = 10;
+    grid->abeille = NULL;
+    grid->frelon = NULL;
 
     for (int i = 0; i < LIGNES; ++i) {
         for (int j = 0; j < COLONNES; ++j) {
-            grille->plateau[i][j].x = i;  
-            grille->plateau[i][j].y = j;  
-            grille->plateau[i][j].colonie = NULL;  
-            grille->plateau[i][j].occupant = NULL;  
-        }
-    }
-    Ruche* nouvelle_ruche = new Ruche;
-    ajout_ruche(grille, ligne_ruche, colonne_ruche, nouvelle_ruche);
-}
-
-
-void initializeGrid(Unite* grid[LIGNES][COLONNES]) {
-    for (int i = 0; i < LIGNES; ++i) {
-        for (int j = 0; j < COLONNES; ++j) {
-            grid[i][j] = NULL;
+            grid->plateau[i][j].x = i;  
+            grid->plateau[i][j].y = j;  
+            grid->plateau[i][j].colonie = NULL;  
+            grid->plateau[i][j].occupant = NULL;  
         }
     }
 
-    // Initialiser et ajouter des unités à chaque liste chaînée
-    addUnitToList(&grid[0][0], initializeUnite(ABEILLES, RUCHE, 0, 0));
-    addUnitToList(&grid[0][0], initializeUnite(ABEILLES, OUVRIERE, 0, 1));
-    addUnitToList(&grid[0][0], initializeUnite(ABEILLES, GUERRIERE, 0, 2));
-    addUnitToList(&grid[0][0], initializeUnite(ABEILLES, ESCADRON, 0, 3)); //en haut à gauche
-
-    addUnitToList(&grid[LIGNES - 1][COLONNES - 1], initializeUnite(FRELONS, REINE, LIGNES - 1, COLONNES - 1));
-    addUnitToList(&grid[LIGNES - 1][COLONNES - 1], initializeUnite(FRELONS, FREL, LIGNES - 1, COLONNES - 2));
-    addUnitToList(&grid[LIGNES - 1][COLONNES - 1], initializeUnite(FRELONS, FREL, LIGNES - 1, COLONNES - 3)); //en bas à droite
 }
+
+
 
 
 //to modify zenom
@@ -250,18 +234,79 @@ void printGrid(Unite* grid[LIGNES][COLONNES]) {
 }
 
 
+int extrait_nid(UListe* nid, Grille** grid){
 
+    //la premiere ruche initialisé
+    if ((*nid)->colprec == *grid){
+        (*grid)->frelon =  *nid->colsuiv;
+    };
+    if((*nid)->colprec){
+        (*nid)->colprec->colsuiv = (*nid)->colsuiv;
+    }
+    if((*nid)->colsuiv){
+        (*nid)->colsuiv->colprec = (*nid)->colprec;
+    }
+    (*nid)->colprec = (*nid)->colsuiv = NULL;
+    return 1;
+
+}
 
 // retrancher des insectes, ruche ou nid de leurs case quand ils sont déplacés ou détruits
 //zenom
-int extrait_case(Grille** grid, Unite* unite){
-    return;
+void extrait_case(Grille* grid, Unite* unite) {
+    int x = unite->posx;
+    int y = unite->posy;
+
+    // Recherche de l'unité dans la liste chaînée de la case
+    Unite* current = grid->plateau[x][y].occupant;
+    Unite* prev = NULL;
+
+    while (current != NULL && current != unite) {
+        prev = current;
+        current = current->next;
+    }
+
+    // Retrait de l'unité de la liste chaînée
+    if (current != NULL) {
+        if (prev != NULL) {
+            prev->next = current->next;
+        } else {
+            grid->plateau[x][y].occupant = current->next;
+        }
+    }
+
+    // Réinitialisation des coordonnées de l'unité (optionnel)
+    unite->posx = unite->posy = -1;
 }
 
-//zenom
-int extrait_insecte_affilie(Grille** grid, Unite* unite){
-    return;
+void extrait_insecte_affilie(Grille* grid, Unite* unite) {
+    // Vérifier si l'unité a une ruche affiliée
+    if (unite->affilie != NULL) {
+        // Recherche de l'unité dans la liste chaînée de la ruche
+        Unite* current = unite->affilie->colonie;
+        Unite* prev = NULL;
+
+        while (current != NULL && current != unite) {
+            prev = current;
+            current = current->next;
+        }
+
+        // Retrait de l'unité de la liste chaînée de la ruche
+        if (current != NULL) {
+            if (prev != NULL) {
+                prev->next = current->next;
+            } else {
+                unite->affilie->colonie = current->next;
+            }
+        }
+        
+        // Réinitialisation du lien d'affiliation
+        unite->affilie = NULL;
+    }
 }
+
+
+
 // remove insecte from case et ruche
 void detruire_insecte(Grille* grid, UListe* insecte) {
     // Vérifier si c'est le premier de la liste
@@ -302,7 +347,7 @@ int ajout_nid(Grille** grid, Unite* nid){
 void ajout_ruche(Grille* grille, int ligne, int colonne, Ruche* ruche) {
     ruche->type = RUCHE;
     ajout_unite_case(grille, ligne, colonne, ruche);
-
+}
 
 //extraire la ruche de la liste chainée des ruches
 int extrait_ruche(UListe* ruche, Grille** grid){
