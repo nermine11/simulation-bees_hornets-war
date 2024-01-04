@@ -180,7 +180,7 @@ void initializeGrille(Grille* grid) {
 
 
 //to modify zenom
-void printGrid(Unite* grid[LIGNES][COLONNES]) {
+void printGrid(Grille* grid){
     for (int i = 0; i < LIGNES; ++i) {
         for (int j = 0; j < COLONNES; ++j) {
             printf(" - -");
@@ -694,10 +694,11 @@ int PasdeTroupes(Unite grid[LIGNES][COLONNES], char type) {
 int main() {
     srand(time(NULL));
     int fin = 0;
-    Grille* grid = (Grille*)(sizeof(Grille));
+    Grille* grid = (Grille*)malloc(sizeof(Grille));
+    memset(grid, 0, sizeof(Grille));
     initializeGrille(grid);
     Unite* ruche1 = initializeUnite(&grid,ABEILLE, RUCHE,0, 0, 0, -1, -1, 'X', -1, -1);
-    grille->abeille = ruche1; // link grille to abeille
+    grid->abeille = ruche1; // link grille to abeille
     Unite* reine1 = initializeUnite(&grid, ABEILLE, REINEA, FREINE, 3, 3, -1, -1, 'X', -1, -1 );//pos(3,3)
     Unite* reine1_2 = initializeUnite(&grid, ABEILLE, REINEA, FREINE, 4, 5, -1, -1, 'X', -1, -1 );//pos(4,5)
     Unite* ouvriere1 = initializeUnite(&grid, ABEILLE, OUVRIERE, FOUVRIERE, 8, 3, -1, -1, 'X', -1, -1);//(8,3)
