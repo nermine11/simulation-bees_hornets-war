@@ -279,11 +279,51 @@ void detruire_insecte(Grille* grid, UListe* insecte) {
     if (grid->plateau[posX][posY].occupant == (*insecte)) {
         grid->plateau[posX][posY].occupant = NULL;
     }
+
     // Libérer la mémoire de l'unité
     free(*insecte);
     *insecte = NULL;  // Afin d'éviter les pointeurs non valides
 }
-//zenom
+
+void extrait_case(Grille* grid, Unite* unite) {
+    int x = unite->posx;
+    int y = unite->posy;
+
+    // Vérifier si c'est la première unité de la case
+    if (grid->plateau[x][y].occupant == unite) {
+        grid->plateau[x][y].occupant = unite->usuiv;
+    }
+
+    if (unite->uprec != NULL) {
+        unite->uprec->usuiv = unite->usuiv;
+    }
+
+    if (unite->usuiv != NULL) {
+        unite->usuiv->uprec = unite->uprec;
+    }
+
+    // Réinitialisation des liens de l'unité (optionnel)
+    unite->usuiv = unite->uprec = NULL;
+}
+
+void extrait_insecte_affilie(Unite* insecte) {
+    // Vérifier si c'est le premier de la liste
+    if (insecte->uprec != NULL) {
+        insecte->uprec->usuiv = insecte->usuiv;
+    } else {
+        // C'est le premier de la liste, mettre à jour la tête de liste
+        insecte->ruche_affiliee->unites_affiliees = insecte->usuiv;
+    }
+
+    // Vérifier si c'est le dernier de la liste
+    if (insecte->usuiv != NULL) {
+        insecte->usuiv->uprec = insecte->uprec;
+    }
+
+    // Réinitialisation des liens de l'unité (optionnel)
+    insecte->usuiv = insecte->uprec = NULL;
+}
+
 void ajout_nid(Grille* grille, int ligne, int colonne) {
     Unite* nid = malloc(sizeof(Unite));
     nid->type = NID;
