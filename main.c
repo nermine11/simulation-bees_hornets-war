@@ -254,59 +254,6 @@ int extrait_nid(UListe* nid, Grille** grid){
 
 }
 
-// retrancher des insectes, ruche ou nid de leurs case quand ils sont déplacés ou détruits
-//zenom
-void extrait_case(Grille** grid, Unite* unite) {
-    int x = unite->posx;
-    int y = unite->posy;
-
-    // Recherche de l'unité dans la liste chaînée de la case
-    Unite* current = grid->plateau[x][y].occupant;
-    Unite* prev = NULL;
-
-    while (current != NULL && current != unite) {
-        prev = current;
-        current = current->next;
-    }
-
-    // Retrait de l'unité de la liste chaînée
-    if (current != NULL) {
-        if (prev != NULL) {
-            prev->next = current->next;
-        } else {
-            grid->plateau[x][y].occupant = current->next;
-        }
-    }
-
-    // Réinitialisation des coordonnées de l'unité (optionnel)
-    unite->posx = unite->posy = -1;
-}
-
-void extrait_insecte_affilie(Grille* grid, Unite* unite) {
-    // Vérifier si l'unité a une ruche affiliée
-    if (unite->affilie != NULL) {
-        // Recherche de l'unité dans la liste chaînée de la ruche
-        Unite* current = unite->affilie->colonie;
-        Unite* prev = NULL;
-
-        while (current != NULL && current != unite) {
-            prev = current;
-            current = current->next;
-        }
-
-        // Retrait de l'unité de la liste chaînée de la ruche
-        if (current != NULL) {
-            if (prev != NULL) {
-                prev->next = current->next;
-            } else {
-                unite->affilie->colonie = current->next;
-            }
-        }
-        
-        // Réinitialisation du lien d'affiliation
-        unite->affilie = NULL;
-    }
-}
 
 
 
@@ -352,25 +299,73 @@ void ajout_ruche(Grille* grille, int ligne, int colonne, Unite* ruche) {
     //ajout_unite_case(grille, ligne, colonne, ruche);
 }
 
-//extraire la ruche de la liste chainée des ruches
-int extrait_ruche(UListe* ruche, Grille** grid){
+void extrait_case(Grille* grid, Unite* unite) {
+    int x = unite->posx;
+    int y = unite->posy;
 
-    //la premiere ruche initialisé
-    if ((*grid)-> abeille == *ruche){
-        (*grid)->abeille =  (*ruche)->colsuiv;
-    };
-    if((*ruche)->colprec){
-        (*ruche)->colprec->colsuiv = (*ruche)->colsuiv;
+    // Vérifier si c'est la première unité de la case
+    if (grid->plateau[x][y].occupant == unite) {
+        grid->plateau[x][y].occupant = unite->usuiv;
     }
-    if((*ruche)->colsuiv){
-        (*ruche)->colsuiv->colprec = (*ruche)->colprec;
+
+    if (unite->uprec != NULL) {
+        unite->uprec->usuiv = unite->usuiv;
     }
-    (*ruche)->colprec = (*ruche)->colsuiv = NULL;
-    return 1;
 
+    if (unite->usuiv != NULL) {
+        unite->usuiv->uprec = unite->uprec;
+    }
 
+    // Réinitialisation des liens de l'unité (optionnel)
+    unite->usuiv = unite->uprec = NULL;
 }
 
+int extrait_ruche(UListe* ruche, Grille** grid) {
+    if ((*grid)->abeille == *ruche) {
+        (*grid)->abeille = (*ruche)->colsuiv;
+    }
+
+    if ((*ruche)->colprec) {
+        (*ruche)->colprec->colsuiv = (*ruche)->colsuiv;
+    }
+
+    if ((*ruche)->colsuiv) {
+        (*ruche)->colsuiv->colprec = (*ruche)->colprec;
+    }
+
+    (*ruche)->colprec = (*ruche)->colsuiv = NULL;
+
+    return 1;
+}
+
+int extrait_insecte_affilie(Grille** grid, Unite* unite) {
+    if (unite->uprec != NULL) {
+        // Exemple générique :
+        Unite* current = unite->uprec;
+        if (current->usuiv == unite) {
+            current->usuiv = unite->usuiv;
+            if (unite->usuiv != NULL) {
+                unite->usuiv->uprec = current;
+            }
+        } else {
+            while (current != NULL && current->usuiv != unite) {
+                current = current->usuiv;
+            }
+
+            if (current != NULL) {
+                current->usuiv = unite->usuiv;
+                if (unite->usuiv != NULL) {
+                    unite->usuiv->uprec = current;
+                }
+            }
+        }
+
+        // Réinitialisation des liens d'affiliation de l'unité (optionnel)
+        unite->usuiv = unite->uprec = NULL;
+    }
+
+    return 1;
+}
 
 
 
