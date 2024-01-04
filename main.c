@@ -326,6 +326,11 @@ int extrait_ruche(UListe* ruche, Grille** grid) {
     }
 
     if ((*ruche)->colprec) {
+    //la premiere ruche initialisé
+    if ((*grid)-> abeille == *ruche){
+        (*grid)->abeille =  (*ruche)->colsuiv;
+    }
+    if((*ruche)->colprec){
         (*ruche)->colprec->colsuiv = (*ruche)->colsuiv;
     }
 
@@ -336,37 +341,9 @@ int extrait_ruche(UListe* ruche, Grille** grid) {
     (*ruche)->colprec = (*ruche)->colsuiv = NULL;
 
     return 1;
+
+
 }
-
-int extrait_insecte_affilie(Grille** grid, Unite* unite) {
-    if (unite->uprec != NULL) {
-        // Exemple générique :
-        Unite* current = unite->uprec;
-        if (current->usuiv == unite) {
-            current->usuiv = unite->usuiv;
-            if (unite->usuiv != NULL) {
-                unite->usuiv->uprec = current;
-            }
-        } else {
-            while (current != NULL && current->usuiv != unite) {
-                current = current->usuiv;
-            }
-
-            if (current != NULL) {
-                current->usuiv = unite->usuiv;
-                if (unite->usuiv != NULL) {
-                    unite->usuiv->uprec = current;
-                }
-            }
-        }
-
-        // Réinitialisation des liens d'affiliation de l'unité (optionnel)
-        unite->usuiv = unite->uprec = NULL;
-    }
-
-    return 1;
-}
-
 
 
 //narmin
@@ -656,8 +633,41 @@ void recolter(Grille* grid, UListe* ouvriere) {
     }
 }
 
+
+
+
+int meme_case(Grille* grid, Case* casee){
+    return 0;
+}
+
+Unite* abeille_fighter(grille* grid, Case* casee){
+    return NULL;
+}
+Unite* frelons_fighter(grille* grid, Case*casee){
+    return NULL;
+}
+
+
 int tire_De(){
-    return rand() % 60;
+    return rand() % 60 +1;// random number between 1 and 60
+}
+
+Unite* insecte_gagnante(Unite* unite1, Unite* unite2){
+    int result = tire_De()
+    if(result * (unite1->force) > result * (unite2->force) )
+        insecte_gagnate = unite1;
+    else
+        insecte_gagnate = unite2;
+    return insecte_gagnate;
+}
+
+
+
+void resolveCombat_case(Unite* unite1, Unite* unite2) {
+    Unite* insecte_gagnante = insecte_gagnante(unite1, unite2);
+    Unite* insecte_perdu = (insecte_gagnante == unite1) ? unite2 : unite1;
+
+
 }
 
 void tour(Unite grid[LIGNES][COLONNES], char camp) {
@@ -667,9 +677,7 @@ void tour(Unite grid[LIGNES][COLONNES], char camp) {
     ;
  }
 
-void resolveCombat(Unite* unit1, Unite* unit2) {
-    //  A FAIRE;
-}
+
 
 void updateResources(int* pollen, int* defeatedAbeille) {
     //  A FAIRE;
