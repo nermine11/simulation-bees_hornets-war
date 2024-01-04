@@ -284,20 +284,20 @@ void detruire_insecte(Grille* grid, UListe* insecte) {
     *insecte = NULL;  // Afin d'éviter les pointeurs non valides
 }
 //zenom
-/*int ajout_ruche(Grille** grid, Unite* ruche){
-    return 1;
-}*/
+void ajout_nid(Grille* grille, int ligne, int colonne) {
+    Unite* nid = malloc(sizeof(Unite));
+    nid->type = NID;
 
-int ajout_nid(Grille** grid, Unite* nid){
-    return 1;
+    ajout_unite_case(grille, ligne, colonne, nid);
 }
 
-
-//zenom
-void ajout_ruche(Grille* grille, int ligne, int colonne, Unite* ruche) {
+void ajout_ruche(Grille* grille, int ligne, int colonne) {
+    Unite* ruche = malloc(sizeof(Unite));
     ruche->type = RUCHE;
-    //ajout_unite_case(grille, ligne, colonne, ruche);
+
+    ajout_unite_case(grille, ligne, colonne, ruche);
 }
+
 
 void extrait_case(Grille* grid, Unite* unite) {
     int x = unite->posx;
