@@ -287,15 +287,51 @@ void detruire_insecte(Grille* grid, UListe* insecte) {
 void ajout_nid(Grille* grille, int ligne, int colonne) {
     Unite* nid = malloc(sizeof(Unite));
     nid->type = NID;
-
     ajout_unite_case(grille, ligne, colonne, nid);
+
+    Ruche* nouvelle_ruche = create_ruche();
+
+    // Étape 3: Link la ruche aux autres ruches (colsuiv, colprec) boucle infinie ?
+    ajout_ruche(grille, nouvelle_ruche);
+
+    Unite* reine = extrait_insecte_affilie();
+    nouvelle_ruche->reine = reine;
+
+    Ruche* ancienne_ruche = reine->ruche_affiliee;
+    extrait_insecte_affilie(ancienne_ruche);
+
+    affilie_insecte(nouvelle_ruche, reine);
+}
+
+Ruche* create_ruche() {
+    Ruche* nouvelle_ruche = malloc(sizeof(Ruche));
+    // Initialiser les propriétés de la ruche ?
+    return nouvelle_ruche;
 }
 
 void ajout_ruche(Grille* grille, int ligne, int colonne) {
     Unite* ruche = malloc(sizeof(Unite));
     ruche->type = RUCHE;
-
     ajout_unite_case(grille, ligne, colonne, ruche);
+
+    Ruche* nouvelle_ruche = create_ruche();
+
+    // Étape 3: Link la ruche aux autres ruches (colsuiv, colprec) boucle infinie ?
+    ajout_ruche(grille, nouvelle_ruche);
+
+    Unite* reine = extrait_insecte_affilie();
+    nouvelle_ruche->reine = reine;
+
+    Ruche* ancienne_ruche = reine->ruche_affiliee;
+    extrait_insecte_affilie(ancienne_ruche);
+
+    affilie_insecte(nouvelle_ruche, reine);
+}
+
+Ruche* create_ruche() {
+    Ruche* nouvelle_ruche = malloc(sizeof(Ruche));
+    // Initialiser les propriétés de la ruche ?
+    return nouvelle_ruche;
 }
 
 
