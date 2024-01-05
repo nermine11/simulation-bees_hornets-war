@@ -778,7 +778,7 @@ int main() {
 
     // frelons
     Unite* nid1 = initializeUnite(&grid, FRELON, NID,0, 11, 17, -1, -1, 'X', -1, -1);
-    grille->frelon = nid1; // link grille to frelon
+    grid->frelon = nid1; // link grille to frelon
     Unite* reinef1 = initializeUnite(&grid, FRELON, REINEF, FREINE, 13, 9, -1, -1, 'X', -1, -1 );//pos(13,9)
     Unite* frelon1_1 = initializeUnite(&grid, FRELON, FREL, FFRELON, 8, 9, -1, -1, 'X', -1, -1);//(8,9)
     Unite* frelon1_2 = initializeUnite(&grid, FRELON, FREL, FFRELON, 9, 9, -1, -1, 'X', -1, -1);//(9,9)
