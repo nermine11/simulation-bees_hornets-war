@@ -388,25 +388,7 @@ int Conversion_nid_ruche(Grille** grid, UListe* nid, UListe* insecte_gagnate){
 
 
 
-/*void addUnitToList(Unite** list, TypeUnite type, int posx, int posy) {
-    Unite* newUnit = (Unite*)malloc(sizeof(Unite));
-    if (newUnit != NULL) {
-        newUnit->type = type;
-        newUnit->posx = posx;
-        newUnit->posy = posy;
-        newUnit->next = NULL;
 
-        if (*list == NULL) {
-            *list = newUnit;
-        } else {
-            Unite* current = *list;
-            while (current->next != NULL) {
-                current = current->next;
-            }
-            current->next = newUnit;
-        }
-    }
-}*/
 
 
 
