@@ -678,7 +678,27 @@ Unite* insecte_gagnante(Unite* unite1, Unite* unite2){
 
 }
 
+void updateResources(Grille* grid, Unite* insecte_perdu) {
 
+    if(insecte_perdu->camp == ABEILLE){
+        if(insecte_perdu->type == REINEA)
+           grid->ressourcesAbeille+= CREINEA;
+        if(insecte_perdu->type == OUVRIERE)
+           grid->ressourcesAbeille+= COUVRIERE;
+        if(insecte_perdu->type == ESCADRON)
+           grid->ressourcesAbeille+= CESCADRON;
+        if(insecte_perdu->type == GUERRIERE)
+           grid->ressourcesAbeille+= CGUERRIERE;
+    }
+    if(insecte_perdu->camp == FRELON){
+        if(insecte_perdu->type == REINEF)
+           grid->pollen+= CREINEF;
+        if(insecte_perdu->type == FREL)
+           grid->pollen += CFRELON;
+    }
+
+        
+}
 
 void resolveCombat(Grille* grid, Case* casee) {
     Unite* abeille_fighter = abeilles_fighter(casee);
@@ -691,6 +711,7 @@ void resolveCombat(Grille* grid, Case* casee) {
         return;
     }
     Conversion_ruche_nid(&grid, &unite_perdu, &insecte_gagnant);
+    updateResources(grid, insecte_perdu);
 
 }
 
@@ -702,10 +723,6 @@ void tour(Unite grid[LIGNES][COLONNES], char camp) {
  }
 
 
-
-void updateResources(int* pollen, int* defeatedAbeille) {
-    //  A FAIRE;
-}
 
 
 
