@@ -90,8 +90,52 @@ int pollen, ressourcesAbeille;
 
 
 
-// ajoute à la fin d'une liste doublement chainee
-int affilie_insecte(UListe* ruche, Unite* unite) {
+//initilaize unit et ajout_unit_case
+Unite* initialiserUnite(char camp, char type, int force, int posx, int posy) {
+    Unite* unite = (Unite*)malloc(sizeof(Unite));
+    if (unite == NULL) {
+        perror("Erreur d'allocation mémoire pour une unité");
+        exit(EXIT_FAILURE);
+    }
+
+    // Initialiser les champs de l'unité
+    unite->camp = camp;
+    unite->type = type;
+    unite->force = force;
+    unite->posx = posx;
+    unite->posy = posy;
+    unite->destx = -1; // Valeur par défaut pour destination immobile
+    unite->desty = -1;
+    unite->production = '\0'; // Pas de production par défaut
+    unite->temps = 0;
+    unite->toursrestant = 0;
+    unite->usuiv = NULL;
+    unite->uprec = NULL;
+    unite->colsuiv = NULL;
+    unite->colprec = NULL;
+    unite->vsuiv = NULL;
+    unite->vprec = NULL;
+    return unite;
+}
+
+void initialiserGrille(Grille* grille) {
+    for (int i = 0; i < LIGNES; ++i) {
+        for (int j = 0; j < COLONNES; ++j) {
+            grille->plateau[i][j].x = i;  
+            grille->plateau[i][j].y = j;  
+            grille->plateau[i][j].colonie = NULL;  
+            grille->plateau[i][j].occupant = NULL;  
+        }
+    }
+    grille->tour = 1;
+    grille->pollen = 10;
+    grille->ressourcesAbeille = 10;
+    grille->abeille = NULL;
+    grille->frelon = NULL;
+}
+
+// ajoute insecte à case, colonie et ruche
+int affilie_insecte(UListe* ruche, Unite* unite, Grille* grille) {
     Unite* current = *ruche;
 
     // Parcourir la liste pour atteindre le dernier élément
@@ -109,7 +153,58 @@ int affilie_insecte(UListe* ruche, Unite* unite) {
         unite->uprec = NULL;
     }
 
+    // Affilier l'unité à la liste des colonies (ruches ou nids)
+    unite->colsuiv = grille->plateau[unite->posx][unite->posy].colonie;
+    unite->colprec = NULL;
+    if (grille->plateau[unite->posx][unite->posy].colonie) {
+        grille->plateau[unite->posx][unite->posy].colonie->colprec = unite;
+    }
+    grille->plateau[unite->posx][unite->posy].colonie = unite;
+
+    // Affilier l'unité à la liste des unités sur la même case
+    unite->vsuiv = grille->plateau[unite->posx][unite->posy].occupant;
+    unite->vprec = NULL;
+    if (grille->plateau[unite->posx][unite->posy].occupant) {
+        grille->plateau[unite->posx][unite->posy].occupant->vprec = unite;
+    }
+    grille->plateau[unite->posx][unite->posy].occupant = unite;
+
     return 1;
+}
+
+
+// remove insecte from case, colonie et ruche
+void detruireUnite(Unite* unite, Grille* grille) {
+    // Désaffilier l'unité de la liste de la ruche ou du nid
+    if (unite->uprec) {
+        unite->uprec->usuiv = unite->usuiv;
+    } else {
+        // L'unité était le premier élément de la liste
+        if (unite->camp == ABEILLE) {
+            grille->abeille = unite->usuiv;
+        } else {
+            grille->frelon = unite->usuiv;
+        }
+    }
+
+    // Désaffilier l'unité de la liste des colonies (ruches ou nids)
+    if (unite->colprec) {
+        unite->colprec->colsuiv = unite->colsuiv;
+    } else {
+        // L'unité était le premier élément de la liste des colonies
+        grille->plateau[unite->posx][unite->posy].colonie = unite->colsuiv;
+    }
+
+    // Désaffilier l'unité de la liste des unités sur la même case
+    if (unite->vprec) {
+        unite->vprec->vsuiv = unite->vsuiv;
+    } else {
+        // L'unité était le premier élément de la liste des unités sur la même case
+        grille->plateau[unite->posx][unite->posy].occupant = unite->vsuiv;
+    }
+
+    // Libérer la mémoire de l'unité
+    free(unite);
 }
  
 // Fonction pour déplacer une unité
@@ -207,151 +302,18 @@ void deplacerUnite(Unite* unite, Grille* grille) {
 
 
 
-//ajoute l'unite à une case(ajout au debut si case vide sinon à la fin)
-int ajout_unite_case(Grille** grille, Unite* nv_unite, int x, int y){
-
-    Case* temp = &((*grille)->plateau[x][y]);//temp pointe vers la case 
-    if (!temp)
-        return 0;
-    // case vide
-    if(!temp->occupant){
-        temp->occupant = nv_unite; 
-        nv_unite->vprec = NULL;
-        nv_unite->vsuiv = NULL;
-        return 1;
-    }
-    // case contient une seule unite
-    if(!((temp->occupant)->vsuiv)){
-        (temp->occupant)->vsuiv = nv_unite;
-        nv_unite->vprec = temp->occupant;
-        nv_unite->vsuiv = NULL;
-
-    }
-    // case contient plusieurs unités
-    else
-    {
-        Unite* curr = (temp->occupant);
-        while(curr->vsuiv){
-            curr = curr->vsuiv;
-        }
-        curr->vsuiv = nv_unite;
-        nv_unite->vprec = curr;
-        nv_unite->vsuiv = NULL;
-    }
-
-    return 1;    
-}
-
-void extrait_case(Grille** grille, Unite* unite) {
-    int x = unite->posx;
-    int y = unite->posy;
-
-    // Vérifier si c'est la première unité de la case
-    if ((*grille)->plateau[x][y].occupant == unite) {
-        (*grille)->plateau[x][y].occupant = unite->usuiv;
-    }
-
-    if (unite->uprec != NULL) {
-        unite->uprec->usuiv = unite->usuiv;
-    }
-
-    if (unite->usuiv != NULL) {
-        unite->usuiv->uprec = unite->uprec;
-    }
-
-    // Réinitialisation des liens de l'unité (optionnel)
-    unite->usuiv = unite->uprec = NULL;
-}
-
-void extrait_insecte_affilie(UListe* insecte) {
-    // Vérifier si c'est le premier de la liste
-    if ((*insecte)->uprec != NULL) {
-        (*insecte)->uprec->usuiv = (*insecte)->usuiv;
-    }
-    // Vérifier si c'est le dernier de la liste
-    if ((*insecte)->usuiv != NULL) {
-        (*insecte)->usuiv->uprec = (*insecte)->uprec;
-    }
-
-    // Réinitialisation des liens de l'unité (optionnel)
-    (*insecte)->usuiv = (*insecte)->uprec = NULL;
-}
-
-// remove insecte from case et ruche
-void detruire_insecte(Grille* grille, UListe* insecte) {
-    // Vérifier si c'est le premier de la liste
-    if ((*insecte)->uprec != NULL) {
-        if ((*insecte)->uprec->usuiv == (*insecte)) {
-            (*insecte)->uprec->usuiv = (*insecte)->usuiv;
-        }
-    } else {
-        // C'est le premier de la liste, mettre à jour la tête de liste
-        grille->plateau[(*insecte)->posx][(*insecte)->posy].occupant = (*insecte)->usuiv;
-    }
-    // Vérifier si c'est le dernier de la liste
-    if ((*insecte)->usuiv != NULL) {
-        (*insecte)->usuiv->uprec = (*insecte)->uprec;
-    }
-    // Si l'unité occupe une case, la libérer
-    int posX = (*insecte)->posx;
-    int posY = (*insecte)->posy;
-
-    if (grille->plateau[posX][posY].occupant == (*insecte)) {
-        grille->plateau[posX][posY].occupant = NULL;
-    }
-
-    // Libérer la mémoire de l'unité
-    free(*insecte);
-    *insecte = NULL;  // Afin d'éviter les pointeurs non valides
-}
 
 
 
 
-//initilaize unit et ajout_unit_case
-Unite* initialiserUnite(char camp, char type, int force, int posx, int posy) {
-    Unite* unite = (Unite*)malloc(sizeof(Unite));
-    if (unite == NULL) {
-        perror("Erreur d'allocation mémoire pour une unité");
-        exit(EXIT_FAILURE);
-    }
-
-    // Initialiser les champs de l'unité
-    unite->camp = camp;
-    unite->type = type;
-    unite->force = force;
-    unite->posx = posx;
-    unite->posy = posy;
-    unite->destx = -1; // Valeur par défaut pour destination immobile
-    unite->desty = -1;
-    unite->production = '\0'; // Pas de production par défaut
-    unite->temps = 0;
-    unite->toursrestant = 0;
-    unite->usuiv = NULL;
-    unite->uprec = NULL;
-    unite->colsuiv = NULL;
-    unite->colprec = NULL;
-    unite->vsuiv = NULL;
-    unite->vprec = NULL;
-    return unite;
-}
 
 
-void initialiserGrille(Grille* grille) {
-    for (int i = 0; i < LIGNES; ++i) {
-        for (int j = 0; j < COLONNES; ++j) {
-            grille->plateau[i][j].x = i;  
-            grille->plateau[i][j].y = j;  
-            grille->plateau[i][j].colonie = NULL;  
-            grille->plateau[i][j].occupant = NULL;  
-        }
-    }
-    grille->tour = 1;
-    grille->pollen = 10;
-    grille->ressourcesAbeille = 10;
-    grille->abeille = NULL;
-    grille->frelon = NULL;
-}
+
+
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+pas terminé
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
 //to modify zenom
@@ -424,7 +386,7 @@ void ajout_ruche_nid(Grille* grille, int ligne, int colonne, Unite* reine, char 
     ajout_ruche(grille, nouvelle_ruche);
     grille->plateau[ligne][colonne].colonie = camp;  
     grille->plateau[ligne][colonne].occupant = reine;  
-    affilie_insecte(nouvelle_ruche, reine);
+    affilie_insecte(nouvelle_ruche, reine, grille);
 }
 
 
@@ -472,12 +434,12 @@ int Conversion_ruche_nid(Grille** grille, UListe* ruche_nid, UListe* insecte_gag
     (*ruche_nid)-> temps = (*ruche_nid)-> toursrestant = -1;
     if((*ruche_nid)->usuiv){
         for(Unite* temp = *ruche_nid; temp->usuiv; temp = temp->usuiv){
-            detruire_insecte(*grille, &temp);
+            detruireUnite(*grille, &temp);
         }
     }
     ajout_ruche_nid(grille, *ruche_nid);
     extrait_insecte_affilie(*grille, *insecte_gagnant);
-    affilie_insecte(ruche_nid, *insecte_gagnant);
+    affilie_insecte(ruche_nid, *insecte_gagnant, grille);
     return 1;
 
 
@@ -592,7 +554,7 @@ int ajout_abeille_produite(UListe* ruche, Grille* grille, char choix_prod){
             insecte = initializeUnite(&grille, ABEILLE, choix_prod, FESCADRON, x,y , -1,-1, 'X', -1, -1);
         // affilier l'abeille à sa ruche
          if(insecte){
-            affilie_insecte(ruche, insecte);
+            affilie_insecte(ruche, insecte, grille);
             return 1;  
          }
 
@@ -613,7 +575,7 @@ int ajout_frelon_produit(UListe* nid, Grille* grille, char choix_prod){
             insecte = initializeUnite(&grille, FRELON, choix_prod, FFRELON, x,y , -1,-1, 'X', -1, -1);
         // affilier le frelon à son nid
         if(insecte){
-            affilie_insecte(nid, insecte);
+            affilie_insecte(nid, insecte, grille);
             return 1;}
     }
     return 0;
@@ -626,7 +588,7 @@ void recolter(Grille* grille, UListe* ouvriere) {
             (*ouvriere)->toursrestant--;
         } else {
             grille->pollen++;
-            detruire_insecte(grille, ouvriere);
+            detruireUnite(grille, ouvriere);
         }
     }
 }
@@ -711,6 +673,10 @@ Unite* insecte_gagnant(Unite* unite1, Unite* unite2){
     }
 
 }
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+pas terminé
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
 
@@ -835,7 +801,7 @@ void ProductionRuche(Unite* reine, Grille* grille) {
         grille->pollen -= CRUCHE;
 
         // Affilier la ruche à la reine
-        affilie_insecte(reine, ruche);
+        affilie_insecte(reine, ruche, grille);
 
         // Mettre la ruche en attente d'un nouvel ordre de production
         ruche->temps = -1;
@@ -850,7 +816,7 @@ void ProductionNid(Unite* reine, Grille* grille) {
         grille->ressourcesAbeille -= CNID;
 
         // Affilier le nid à la reine
-        affilie_insecte(reine, nid);
+        affilie_insecte(reine, nid, grille);
 
         // Mettre le nid en attente d'un nouvel ordre de production
         nid->temps = -1;
@@ -861,8 +827,11 @@ void donnerOrdresInsectes(UListe liste, Grille* grille) {
     UListe currentUnit;
 
     for (currentUnit = liste; currentUnit != NULL; currentUnit = currentUnit->usuiv) {
+        /*
         MLV_draw_text(currentUnit->posx, currentUnit->posy, currentUnit->type, MLV_COLOR_RED);
         MLV_update_window();
+        */
+
         switch (currentUnit->type) {
             case REINEA:
             case REINEF:
@@ -879,8 +848,10 @@ void donnerOrdresInsectes(UListe liste, Grille* grille) {
             default:
                 break;
         }
+        /*
         MLV_draw_text(currentUnit->posx, currentUnit->posy, currentUnit->type, MLV_COLOR_GREEN);
         MLV_update_window();
+        */
     }
 }
 
@@ -924,7 +895,6 @@ void ordresOuvriere(Unite* ouvriere, Grille* grille) {
     printf("Voulez-vous (a) déplacer votre ouvrière ? (b) récolter du pollen ? (c) passer le tour ?");
     char rep;
     scanf(" %c", &rep);
-
     switch(rep) {
         case 'a':
             deplacerUnite(ouvriere, grille);
@@ -946,6 +916,72 @@ void ordresOuvriere(Unite* ouvriere, Grille* grille) {
     }
 }
 
+int lancerRecoltePollen(Unite* ouvriere, Grille* grille) {
+    // Vérifier si l'ouvrière est sur une case libre sans présence de frelons
+    if (caseLibrePourRecolte(ouvriere, grille)) {
+        // Marquer l'abeille de type récolte
+        ouvriere->type = RECOLTE;
+
+        // Initialiser le compteur de tours de récolte
+        ouvriere->toursrestant = TRECOLTE;
+
+        return 1; // Récolte lancée avec succès
+    }
+    return 0; // Impossible de lancer la récolte
+}
+
+// Fonction pour vérifier si une case est libre pour la récolte de pollen
+int caseLibrePourRecolte(Unite* ouvriere, Grille* grille) {
+    // Vérifier que la case est dans les limites de la grille
+    if (ouvriere->posx >= 0 && ouvriere->posx < LIGNES && ouvriere->posy >= 0 && ouvriere->posy < COLONNES) {
+        // Vérifier que la case n'est pas occupée par des frelons
+        for (Unite* currentUnit = grille->frelon; currentUnit != NULL; currentUnit = currentUnit->vsuiv) {
+            if (currentUnit->posx == ouvriere->posx && currentUnit->posy == ouvriere->posy) {
+                return 0; // La case est occupée par des frelons
+            }
+        }
+        return 1; // La case n'est pas occupée par des frelons
+    }
+
+    return 0; // Case hors des limites de la grille
+}
+
+// Fonction pour mettre à jour l'état de l'ouvrière pendant la récolte de pollen
+void UpdateRecoltePollen(Unite* ouvriere, Grille* grille) {
+    if (ouvriere->toursrestant > 0) {
+        // Décrémenter le compteur de tours restants
+        ouvriere->toursrestant--;
+        grille->pollen++;
+        }
+
+        // Si les tours restants atteignent zéro, détruire l'ouvrière
+        if (ouvriere->toursrestant == 0) {
+            detruireUnite(ouvriere, grille);
+        }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+pas terminé
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+
 void resolveCombat(Unite* insecte, Grille* grille) {
     Unite* abeille_fighter = abeilles_fighter(case);
     Unite* frelon_fighter = frelons_fighter(case);
@@ -953,15 +989,11 @@ void resolveCombat(Unite* insecte, Grille* grille) {
     Unite* unite_perdu = (insecte_gagnant == abeille_fighter) ? frelon_fighter : abeille_fighter;
     // si l'insecte perdu est une insectr
     if (unite_perdu->force){
-        detruire_insecte(grille, &unite_perdu);
+        detruireUnite(grille, &unite_perdu);
         return;
     }
     Conversion_ruche_nid(&grille, &unite_perdu, &insecte_gagnant);
 
-}
-
-void updateResources(Grille* grille) {
-    // Implémentez la logique pour mettre à jour les ressources des deux camps
 }
 
 void printgrille(Grille* grille) {
@@ -973,6 +1005,18 @@ int PasdeTroupes(Grille* grille, char camp) {
     // sur la grille
     return 0; // À adapter en fonction de l'implémentation
 }
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+pas terminé
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+
+
+
+
+
+
+
 
 
 
@@ -993,11 +1037,11 @@ int main() {
     Unite* ouvriere1 = initializeUnite(ABEILLE, OUVRIERE, FOUVRIERE, 8, 3);// pos(8,3)
     Unite* guerriere1 = initializeUnite(ABEILLE, GUERRIERE, FGUERRIERE, 5, 4);// pos(5,4)
     Unite* escadron1 = initializeUnite(ABEILLE, ESCADRON, FESCADRON, 10, 7);// pos(10,7)
-    affilie_insecte(&ruche1,reine1);
-    affilie_insecte(&ruche1,reine1_2);
-    affilie_insecte(&ruche1,ouvriere1);
-    affilie_insecte(&ruche1,guerriere1);
-    affilie_insecte(&ruche1,escadron1);
+    affilie_insecte(&ruche1,reine1, grille);
+    affilie_insecte(&ruche1,reine1_2, grille);
+    affilie_insecte(&ruche1,ouvriere1, grille);
+    affilie_insecte(&ruche1,guerriere1, grille);
+    affilie_insecte(&ruche1,escadron1, grille);
 
     Unite* nid1 = initialiserUnite(FRELON, NID, 0, 11, 17);
     grille->frelon = nid1; // link grille à frelon
@@ -1005,10 +1049,10 @@ int main() {
     Unite* frelon1_1 = initialserUnite(FRELON, FREL, FFRELON, 8, 9);// pos(8,9)
     Unite* frelon1_2 = initialiserUnite(FRELON, FREL, FFRELON, 9, 9);// pos(9,9)
     Unite* frelon1_3 = initialiserUnite(FRELON, FREL, FFRELON, 10, 9);// pos(10,9)
-    affilie_insecte(&nid1,reinef1);
-    affilie_insecte(&nid1,frelon1_1);
-    affilie_insecte(&nid1,frelon1_2);
-    affilie_insecte(&nid1,frelon1_3);
+    affilie_insecte(&nid1,reinef1, grille);
+    affilie_insecte(&nid1,frelon1_1, grille);
+    affilie_insecte(&nid1,frelon1_2, grille);
+    affilie_insecte(&nid1,frelon1_3, grille);
     // Simulation
     while (!fin) {
         char firstCamp = (rand() % 2 == 0) ? ABEILLE : FRELON;
