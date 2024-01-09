@@ -134,6 +134,79 @@ void initialiserGrille(Grille* grille) {
     grille->frelon = NULL;
 }
 
+void printGrille(Grille* grille) {
+    for (int i = 0; i < LIGNES; ++i) {
+        for (int j = 0; j < COLONNES; ++j) {
+            printf("-  - -  -");
+        }
+        for (int j = 0; j < COLONNES; ++j) {
+            printf(" ");
+        }
+        printf("\n");
+
+        for (int j = 0; j < COLONNES; ++j) {
+            printf("|");
+
+            // Vérifier la présence de ruche
+            if (grille->plateau[i][j].colonie != NULL && grille->plateau[i][j].colonie->type == RUCHE) {
+                printf("R");
+            } else {
+                printf(" ");
+            }
+
+            // Vérifier la présence d'abeilles sur la case
+            for (Unite* current = grille->plateau[i][j].occupant; current != NULL; current = current->vsuiv) {
+                switch (current->type) {
+                    case REINEA:
+                        printf("r");
+                        break;
+                    case OUVRIERE:
+                        printf("o");
+                        break;
+                    case GUERRIERE:
+                        printf("g");
+                        break;
+                    case ESCADRON:
+                        printf("e");
+                        break;
+                    default:
+                        break;
+                }
+            }
+            printf(" - ");
+            // Vérifier la présence de nid
+            if (grille->plateau[i][j].colonie != NULL && grille->plateau[i][j].colonie->type == NID) {
+                printf("N");
+            } else {
+                printf(" ");
+            }
+
+            // Vérifier la présence de frelons sur la case
+            for (Unite* current = grille->plateau[i][j].occupant; current != NULL; current = current->vsuiv) {
+                switch (current->type) {
+                    case REINEF:
+                        printf("r");
+                        break;
+                    case FREL:
+                        printf("f");
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // Espace pour les cases vides
+            printf("   ");
+        }
+        printf("|\n");
+    }
+
+    for (int j = 0; j < COLONNES; ++j) {
+        printf("-  - -  -");
+    }
+    printf("\n");
+}
+
 // ajoute insecte à case, colonie et ruche
 int affilie_insecte(UListe* ruche, Unite* unite, Grille* grille) {
     Unite* current = *ruche;
@@ -172,6 +245,27 @@ int affilie_insecte(UListe* ruche, Unite* unite, Grille* grille) {
     return 1;
 }
 
+void retirerUnite(UListe* liste, Unite* unite) {
+    if (*liste == unite) {
+        // L'unité à retirer est en tête de liste
+        *liste = unite->usuiv;
+        if (*liste) {
+            (*liste)->uprec = NULL;
+        }
+    } else {
+        // L'unité à retirer n'est pas en tête de liste
+        if (unite->uprec) {
+            unite->uprec->usuiv = unite->usuiv;
+        }
+        if (unite->usuiv) {
+            unite->usuiv->uprec = unite->uprec;
+        }
+    }
+
+    // Mettre à jour les pointeurs de la liste
+    unite->usuiv = NULL;
+    unite->uprec = NULL;
+}
 
 // remove insecte from case, colonie et ruche
 void detruireUnite(Unite* unite, Grille* grille) {
@@ -210,23 +304,23 @@ void detruireUnite(Unite* unite, Grille* grille) {
 // Fonction pour déplacer une unité
 void deplacerUnite(Unite* unite, Grille* grille) {
     // Affichage des directions possibles
-    printf("Directions possibles : N (nord), NE (nord-est), E (est), SE (sud-est), S (sud), SO (sud-ouest), O (ouest), NO (nord-ouest)\n");
-
+    printGrille(grille);
+    printf("Directions possibles : n (nord), ne (nord-est), e (est), se (sud-est), s (sud), so (sud-ouest), o (ouest), no (nord-ouest)\n");
     // Demander à l'utilisateur d'entrer la direction
     char direction[3];  // "NO" est la plus longue, donc besoin de 3 caractères
-    printf("Entrez la direction : ");
+    printf("Entrez la direction : \n");
     scanf("%s", direction);
 
     // Appliquer le déplacement en fonction de la direction
-    if (strcmp(direction, "N") == 0) {
+    if (strcmp(direction, "n") == 0) {
         // Déplacement vers le nord
         if (unite->posy > 0) {
             unite->posy--;
-            printf("Déplacement vers le nord effectué.\n");
+            printf("Déplacement vers le nord effectué.\n"); // Un insecte peut aller sur une case déjà occupé, c'est le principe
         } else {
             printf("Déplacement impossible vers le nord.\n");
         }
-    } else if (strcmp(direction, "NE") == 0) {
+    } else if (strcmp(direction, "ne") == 0) {
         // Déplacement vers le nord-est
         if (unite->posy > 0 && unite->posx < COLONNES - 1) {
             unite->posy--;
@@ -235,7 +329,7 @@ void deplacerUnite(Unite* unite, Grille* grille) {
         } else {
             printf("Déplacement impossible vers le nord-est.\n");
         }
-    } else if (strcmp(direction, "E") == 0) {
+    } else if (strcmp(direction, "e") == 0) {
         // Déplacement vers l'est
         if (unite->posx < COLONNES - 1) {
             unite->posx++;
@@ -243,7 +337,7 @@ void deplacerUnite(Unite* unite, Grille* grille) {
         } else {
             printf("Déplacement impossible vers l'est.\n");
         }
-    } else if (strcmp(direction, "SE") == 0) {
+    } else if (strcmp(direction, "se") == 0) {
         // Déplacement vers le sud-est
         if (unite->posy < LIGNES - 1 && unite->posx < COLONNES - 1) {
             unite->posy++;
@@ -252,7 +346,7 @@ void deplacerUnite(Unite* unite, Grille* grille) {
         } else {
             printf("Déplacement impossible vers le sud-est.\n");
         }
-    } else if (strcmp(direction, "S") == 0) {
+    } else if (strcmp(direction, "s") == 0) {
         // Déplacement vers le sud
         if (unite->posy < LIGNES - 1) {
             unite->posy++;
@@ -260,7 +354,7 @@ void deplacerUnite(Unite* unite, Grille* grille) {
         } else {
             printf("Déplacement impossible vers le sud.\n");
         }
-    } else if (strcmp(direction, "SO") == 0) {
+    } else if (strcmp(direction, "so") == 0) {
         // Déplacement vers le sud-ouest
         if (unite->posy < LIGNES - 1 && unite->posx > 0) {
             unite->posy++;
@@ -269,7 +363,7 @@ void deplacerUnite(Unite* unite, Grille* grille) {
         } else {
             printf("Déplacement impossible vers le sud-ouest.\n");
         }
-    } else if (strcmp(direction, "O") == 0) {
+    } else if (strcmp(direction, "o") == 0) {
         // Déplacement vers l'ouest
         if (unite->posx > 0) {
             unite->posx--;
@@ -277,7 +371,7 @@ void deplacerUnite(Unite* unite, Grille* grille) {
         } else {
             printf("Déplacement impossible vers l'ouest.\n");
         }
-    } else if (strcmp(direction, "NO") == 0) {
+    } else if (strcmp(direction, "no") == 0) {
         // Déplacement vers le nord-ouest
         if (unite->posy > 0 && unite->posx > 0) {
             unite->posy--;
@@ -293,159 +387,6 @@ void deplacerUnite(Unite* unite, Grille* grille) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-pas terminé
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
-
-//to modify zenom
-void printgrille(Grille* grille){
-    for (int i = 0; i < LIGNES; ++i) {
-        for (int j = 0; j < COLONNES; ++j) {
-            printf(" - -");
-        }
-        for (int j = 0; j < COLONNES; ++j) {
-            printf(" ");
-        }
-        printf("\n");
-
-        for (int j = 0; j < COLONNES; ++j) {
-            printf("|");
-            
-            // Imprimer la liste chaînée d'unités à cette position
-            Unite* current = &grille;
-            while (current != NULL) {
-                switch (current->type) {
-                    case RUCHE:
-                        printf(" R ");
-                        break;
-                    case REINEF:
-                        printf(" rF ");
-                        break;
-                    case REINEA:
-                        printf(" rA ");
-                        break;
-                    case GUERRIERE:
-                        printf(" G ");
-                        break;
-                    case OUVRIERE:
-                        printf(" O ");
-                        break;
-                    case NID:
-                        printf(" N ");
-                        break;
-                    case FREL:
-                        printf(" f ");
-                        break;
-                    case RECOLTE:
-                        printf(" p ");
-                        break;                    
-                    default:
-                        printf("   ");
-                }
-                current = current->usuiv;
-            }
-        }
-        printf("|\n");
-    }
-
-    for (int j = 0; j < COLONNES; ++j) {
-        printf(" - -");
-    }
-    printf("\n");
-}
-
-
-
-void ajout_ruche_nid(Grille* grille, int ligne, int colonne, Unite* reine, char camp) {
-    Unite* ruche = malloc(sizeof(Unite));
-    ruche->type = RUCHE;
-    ajout_unite_case(grille, ligne, colonne, ruche);
-    extrait_insecte_affilie(reine);
-    Unite* nouvelle_ruche = create_ruche();
-
-    // Étape 3: Link la ruche aux autres ruches (colsuiv, colprec) boucle infinie ?
-    ajout_ruche(grille, nouvelle_ruche);
-    grille->plateau[ligne][colonne].colonie = camp;  
-    grille->plateau[ligne][colonne].occupant = reine;  
-    affilie_insecte(nouvelle_ruche, reine, grille);
-}
-
-
-int extrait_ruche_nid(UListe* ruche_nid, Grille** grille) {
-
-    // si c'est une ruche et la premiere dans la liste chainee
-    if (((*ruche_nid)->type == RUCHE) && (*grille)->abeille == *ruche_nid) 
-        (*grille)->abeille = (*ruche_nid)->colsuiv;
-
-     // si c'est un nid et la premiere dans la liste chainee
-    else if (((*ruche_nid)->type == NID) && (*grille)->frelon == *ruche_nid) 
-        (*grille)->frelon = (*ruche_nid)->colsuiv;
-    
-    if((*ruche_nid)->colprec){
-        (*ruche_nid)->colprec->colsuiv = (*ruche_nid)->colsuiv;
-    }
-
-    if ((*ruche_nid)->colsuiv) {
-        (*ruche_nid)->colsuiv->colprec = (*ruche_nid)->colprec;
-    }
-
-    (*ruche_nid)->colprec = (*ruche_nid)->colsuiv = NULL;
-
-    return 1;
-
-
-}
-
-
-
-//narmin
-int Conversion_ruche_nid(Grille** grille, UListe* ruche_nid, UListe* insecte_gagnant){
-    
-    extrait_ruche_nid(ruche_nid,grille);
-    // s'il s'agit d'une ruche
-    if((*ruche_nid)->type == RUCHE)
-    {
-        (*ruche_nid)-> camp = FRELON;
-        (*ruche_nid)-> type = NID;
-    }
-    //s'il s'agit d'un nid
-    (*ruche_nid)-> camp = ABEILLE;
-    (*ruche_nid)-> type = RUCHE;
-    (*ruche_nid)-> production = 'X';
-    (*ruche_nid)-> temps = (*ruche_nid)-> toursrestant = -1;
-    if((*ruche_nid)->usuiv){
-        for(Unite* temp = *ruche_nid; temp->usuiv; temp = temp->usuiv){
-            detruireUnite(*grille, &temp);
-        }
-    }
-    ajout_ruche_nid(grille, *ruche_nid);
-    extrait_insecte_affilie(*grille, *insecte_gagnant);
-    affilie_insecte(ruche_nid, *insecte_gagnant, grille);
-    return 1;
-
-
-}
-
-
 // vérifier si la case est vide pour déplacer l'abeille
 // 1 si vide 0 sinon
 int case_vide(Grille *grille, int posX, int posY) {
@@ -456,59 +397,6 @@ int case_vide(Grille *grille, int posX, int posY) {
     }
     return -1; // Hors plateau
 }
-
-// 0 si pollen pas suffisant ou ruche en train de produire une abeille
-// 1 si tout a bien passé
-int production_ruche_nid(UListe* ruche_nid, Grille* grille,  char choix_prod){
-    //*ruche points to unite
-    if(!((*ruche_nid)->production == 'X')) { // la ruche n'est pas en train de produire une autre abeille
-        if(choix_prod != REINEA && grille->pollen >= CREINEA){
-            (*ruche_nid)-> production = REINEA;
-            (*ruche_nid)-> temps = TREINEA;
-            (*ruche_nid)-> toursrestant = TREINEA;
-            return 1;
-        }
-        if(choix_prod != OUVRIERE && grille->pollen >= COUVRIERE){
-            (*ruche_nid)-> production = OUVRIERE;
-            (*ruche_nid)-> temps = TOUVRIERE;
-            (*ruche_nid)-> toursrestant = TOUVRIERE;
-            return 1;
-        }
-        if(choix_prod != GUERRIERE && grille->pollen >= CGUERRIERE){
-            (*ruche_nid)-> production = GUERRIERE;
-            (*ruche_nid)-> temps = TGUERRIERE;
-            (*ruche_nid)-> toursrestant = TGUERRIERE; 
-            return 1;
-        }
-        if(choix_prod !=ESCADRON  && grille->pollen >= CESCADRON){
-            (*ruche_nid)-> production = ESCADRON;
-            (*ruche_nid)-> temps = TESCADRON;
-            (*ruche_nid)-> toursrestant = TESCADRON;
-            return 1;
-        }
-        if(choix_prod != REINEF && grille->pollen >= CREINEF){
-            (*ruche_nid)-> production = REINEF;
-            (*ruche_nid)-> temps = TREINEF;
-            (*ruche_nid)-> toursrestant = TREINEF;
-            return 1;
-        }
-        if(choix_prod != FRELON && grille->pollen >= CFRELON){
-            (*ruche_nid)-> production = FREL;
-            (*ruche_nid)-> temps = TFRELON;
-            (*ruche_nid)-> toursrestant = TFRELON;
-            return 1;
-        }
-        
-        printf("Pas de pollen suffisant, la quantité du pollen actuelle est: %d\n",grille->pollen);
-    }
-    else
-    {
-        printf("La ruche est en train de produire une autre abeille, il reste %d tours pour finir la production",(*ruche_nid)-> toursrestant);
-
-    }
-    return 0;   
-}
-
 
 // retourne une cases voisine libre de la ruche choisie
 Case* case_voisine_libre(UListe ruche, Grille* grille){
@@ -532,171 +420,11 @@ Case* case_voisine_libre(UListe ruche, Grille* grille){
 
 }
 
-
-
-// check if (*ruche)-> toursrestant == 0 au début du boucle while du tour dans le main
-// initialize abeille, link abeille to ruche, link abeille to case
-int ajout_abeille_produite(UListe* ruche, Grille* grille, char choix_prod){
-
-    Case* casee = case_voisine_libre(*ruche, grille);
-    if (casee ){
-        int x = casee->x;
-        int y =  casee->y;
-        // initialize abeille et la liér à son case
-        Unite* insecte = NULL;
-        if(choix_prod != REINEA)
-            insecte = initializeUnite(&grille, ABEILLE, choix_prod, FREINE, x,y , -1,-1, 'X', -1, -1);
-        if(choix_prod != OUVRIERE)
-            insecte = initializeUnite(&grille, ABEILLE, choix_prod, FOUVRIERE, x,y , -1,-1, 'X', -1, -1);
-        if(choix_prod != GUERRIERE)
-            insecte = initializeUnite(&grille, ABEILLE, choix_prod, FGUERRIERE, x,y , -1,-1, 'X', -1, -1);
-        if(choix_prod != ESCADRON)
-            insecte = initializeUnite(&grille, ABEILLE, choix_prod, FESCADRON, x,y , -1,-1, 'X', -1, -1);
-        // affilier l'abeille à sa ruche
-         if(insecte){
-            affilie_insecte(ruche, insecte, grille);
-            return 1;  
-         }
-
-    }
-    return 0;
+int PasdeTroupes(Grille* grille, char camp) {
+    // Implémentez la logique pour vérifier s'il n'y a plus de troupes du camp spécifié
+    // sur la grille
+    return 0; // À adapter en fonction de l'implémentation
 }
-
-int ajout_frelon_produit(UListe* nid, Grille* grille, char choix_prod){
-    Case* casee = case_voisine_libre(*nid, grille);
-    if (casee){
-        int x = casee->x;
-        int y =  casee->y;
-        // initialize frelon et le liér à son case
-        Unite* insecte = NULL;
-        if(choix_prod!= REINEF)
-            insecte = initializeUnite(&grille, FRELON, choix_prod, FREINE, x,y , -1,-1, 'X', -1, -1);
-        if(choix_prod != FREL)
-            insecte = initializeUnite(&grille, FRELON, choix_prod, FFRELON, x,y , -1,-1, 'X', -1, -1);
-        // affilier le frelon à son nid
-        if(insecte){
-            affilie_insecte(nid, insecte, grille);
-            return 1;}
-    }
-    return 0;
-}
-
-
-void recolter(Grille* grille, UListe* ouvriere) {
-    if ((*ouvriere) != NULL && (*ouvriere)->type == OUVRIERE) {
-        if ((*ouvriere)->toursrestant > 0) {
-            (*ouvriere)->toursrestant--;
-        } else {
-            grille->pollen++;
-            detruireUnite(grille, ouvriere);
-        }
-    }
-}
-
-
-
-//retourne 1 si il ya au moins 2 camps différents sinon 0
-int combat_case( Case* casee){
-
-    int nb_abeille = 0;
-    int nb_frelons = 0;
-    // case vide
-    if(!(casee->occupant))
-        return 0;       
-    Unite* curr = casee->occupant;
-    do
-    {
-        if (curr->camp == ABEILLE)
-            nb_abeille++;
-        else
-            nb_frelons++;
-        curr = curr->vsuiv;
-
-    }while(curr->vsuiv);
-    // il existe au moins deux camps differents dans la case
-    if (nb_abeille > 0 && nb_frelons >0)
-        return 1;
-
-}
-
-// déterminer l'abeille qui va intervenir le premier
-Unite* abeilles_fighter( Case* casee){
-    Unite* curr = casee->occupant;
-    do
-    {
-        if (curr->type == ESCADRON)
-            return curr;
-        if (curr->type == GUERRIERE)
-            return curr;
-        if (curr->type == REINEA)
-            return curr;
-        if (curr->type == OUVRIERE)
-            return curr;
-        curr = curr->vsuiv;
-
-    }while(curr->vsuiv);
-    return curr;
-}
-// déterminer le frelon qui va intervenir le premier
-Unite* frelons_fighter( Case*casee){
-    Unite* curr = casee->occupant;
-    do
-    {
-        if (curr->type == FREL)
-            return curr;
-        if (curr->type == REINEF)
-            return curr;
-        curr = curr->vsuiv;
-
-    }while(curr->vsuiv);
-    return curr;
-}
-
-int tire_De(){
-    return rand() % 60 +1;// random number between 1 and 60
-}
-
-Unite* insecte_gagnant(Unite* unite1, Unite* unite2){
-    int result = tire_De();
-    // unite1 et unite2 forces diff de 0 donc ils ne sont ni ruche ni nid
-    if (unite1->force && unite2->force){
-        if(result * (unite1->force) > result * (unite2->force) )
-            return unite1;
-         else
-            return unite2;
-    }
-    else{
-        if(!(unite1->force))
-            return unite2;
-        else
-            return unite1;
-    }
-
-}
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-pas terminé
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Fonction pour mettre à jour l'état de l'ouvrière pendant la récolte de pollen
 void UpdateRecoltePollen(Unite* ouvriere, Grille* grille) {
@@ -705,7 +433,6 @@ void UpdateRecoltePollen(Unite* ouvriere, Grille* grille) {
         ouvriere->toursrestant--;
         grille->pollen++;
         }
-
         // Si les tours restants atteignent zéro, détruire l'ouvrière
         if (ouvriere->toursrestant == 0) {
             detruireUnite(ouvriere, grille);
@@ -742,8 +469,220 @@ int lancerRecoltePollen(Unite* ouvriere, Grille* grille) {
     return 0; // Impossible de lancer la récolte
 }
 
+void detruireListeUnites(UListe liste, Grille* grille, Unite* frelonCapturant) {
+    Unite* current = liste;
+
+    while (current != NULL) {
+        Unite* suivant = current->usuiv;
+
+        // Vérifier si l'unité est différente du frelon capturant
+        if (current->camp != FRELON) {
+            // Ajouter des ressources abeilles pour les abeilles détruites
+            if (current->type == REINEA) {
+                grille->ressourcesAbeille += 7;
+            } else if (current->type == OUVRIERE) {
+                grille->ressourcesAbeille += 3;
+            } else if (current->type == GUERRIERE) {
+                grille->ressourcesAbeille += 5;
+            } else if (current->type == ESCADRON) {
+                grille->ressourcesAbeille += 6;
+            }
+
+            // Retirer l'unité de la grille
+            detruireUnite(current, grille);
+        }
+
+        // Passer à l'unité suivante dans la liste
+        current = suivant;
+    }
+}
+
+// Fonction pour simuler le lancer d'un dé à 60 faces
+int tireDe() {
+    // Utilisation d'une fonction de génération de nombres aléatoires appropriée
+    // (Par exemple, MLV_integer_random(1, 60) si la bibliothèque MLV est utilisée)
+    // Remplacer par MLV
+    return 1 + rand() % 60;
+}
+
+void combatUnites(UListe campAbeille, UListe campFrelon, Grille* grille) {
+    while (campAbeille != NULL && campFrelon != NULL) {
+        Unite* abeille = campAbeille;
+        Unite* frelon = campFrelon;
+
+        // Calculer les scores de combat
+        int scoreAbeille = tireDe() * abeille->force;
+        int scoreFrelon = tireDe() * frelon->force;
+
+        // Déterminer le résultat du combat
+        if (scoreAbeille > scoreFrelon) {
+            // L'abeille gagne
+            detruireUnite(frelon, grille);
+            // Passer à l'unité suivante dans la liste des abeilles
+            campAbeille = campAbeille->usuiv;
+
+        } else if (scoreFrelon > scoreAbeille) {
+            // Le frelon gagne
+            // Gérer la capture de ruche par un frelon
+            if (abeille->type == RUCHE) {
+                // Retirer la ruche de la liste campAbeille
+                retirerUnite(&campAbeille, abeille);
+                //détruire toutes les abeilles de la même colonie
+                abeille->camp=FRELON;
+                abeille->type = NID;
+                affilie_insecte(&abeille, frelon, grille);
+                detruireListeUnites(abeille, grille, frelon);
+            } else {
+                detruireUnite(abeille, grille);
+            }
+
+            // Passer à l'unité suivante dans la liste des frelons
+            campFrelon = campFrelon->usuiv;
+        } else {
+            // Égalité, les deux unités sont détruites
+            detruireUnite(abeille, grille);
+            detruireUnite(frelon, grille);
+
+            // Passer aux unités suivantes dans les listes des abeilles et des frelons
+            campAbeille = campAbeille->usuiv;
+            campFrelon = campFrelon->usuiv;
+        }
+    }
+}
+
+// Fonction pour déterminer l'ordre des unités dans le combat
+int ordreUniteCombat(Unite* unite) {
+    // Les escadrons, guerrières, reines et ouvrières sont classés du côté abeilles
+    // Les frelons et reines sont classés du côté frelons
+    // Les ruches et nids ne participent pas directement au combat
+    if (unite->camp == ABEILLE) {
+        if (unite->type == ESCADRON) {
+            return 0;
+        } else if (unite->type == GUERRIERE) {
+            return 1;
+        } else if (unite->type == REINEA) {
+            return 2;
+        } else if (unite->type == OUVRIERE) {
+            return 3;
+        }
+    } else if (unite->camp == FRELON) {
+        if (unite->type == FREL) {
+            return 4;
+        } else if (unite->type == REINEF) {
+            return 5;
+        }
+    }
+
+    return -1; // Valeur par défaut en cas de type inconnu
+}
+
+// Fonction pour échanger deux unités dans une liste
+void echangerUnites(UListe unite1, UListe unite2) {
+    Unite temp = *unite1;
+    *unite1 = *unite2;
+    *unite2 = temp;
+}
+
+void trierUnitesPourCombat(UListe* listeFrelon, UListe* listeAbeille) {
+    // Utilisation de l'algorithme de tri par sélection pour simplifier
+    if (*listeFrelon == NULL || (*listeFrelon)->usuiv == NULL) {
+        return; // Rien à trier si la liste est vide ou a un seul élément
+    }
+
+    UListe i, j, min;
+
+    // Tri des frelons
+    for (i = *listeFrelon; i->usuiv != NULL; i = i->usuiv) {
+        // Trouver le minimum dans la partie non triée
+        min = i;
+        for (j = i->usuiv; j != NULL; j = j->usuiv) {
+            // Comparaison pour déterminer l'ordre des unités
+            int ordre_i = ordreUniteCombat(min);
+            int ordre_j = ordreUniteCombat(j);
+
+            if (ordre_i > ordre_j) {
+                min = j;
+            }
+        }
+
+        // Échanger l'élément minimum avec le premier élément non trié
+        if (min != i) {
+            echangerUnites(i, min);
+        }
+    }
+
+    // Tri des abeilles
+    if (*listeAbeille == NULL || (*listeAbeille)->usuiv == NULL) {
+        return; // Rien à trier si la liste est vide ou a un seul élément
+    }
+
+    for (i = *listeAbeille; i->usuiv != NULL; i = i->usuiv) {
+        // Trouver le minimum dans la partie non triée
+        min = i;
+        for (j = i->usuiv; j != NULL; j = j->usuiv) {
+            // Comparaison pour déterminer l'ordre des unités
+            int ordre_i = ordreUniteCombat(min);
+            int ordre_j = ordreUniteCombat(j);
+
+            if (ordre_i > ordre_j) {
+                min = j;
+            }
+        }
+
+        // Échanger l'élément minimum avec le premier élément non trié
+        if (min != i) {
+            echangerUnites(i, min);
+        }
+    }
+}
+
+void resolveCombat(Unite* unite, Grille* grille) {
+    // Initialisation des combattants à NULL
+    UListe campfrelon = NULL;
+    UListe campabeille = NULL;
+
+    // Recherche des frelons sur la même case
+    if (!caseLibrePourRecolte(unite, grille)) {
+        for (Unite* currentUnit = grille->frelon; currentUnit != NULL; currentUnit = currentUnit->usuiv) {
+            if (currentUnit->posx == unite->posx && currentUnit->posy == unite->posy) {
+                affilie_insecte(&campfrelon, currentUnit, grille);
+            }
+        }
+        for (Unite* currentUnit = grille->abeille; currentUnit != NULL; currentUnit = currentUnit->usuiv) {
+            if (currentUnit->posx == unite->posx && currentUnit->posy == unite->posy) {
+                affilie_insecte(&campabeille, currentUnit, grille);
+            }
+        }
+    }
+
+    // Combat seulement s'il y a des adversaires
+    if (campfrelon != NULL && campabeille !=NULL) {
+        // Trier les unités pour le combat
+        trierUnitesPourCombat(&campfrelon, &campabeille);
+        
+        // Combat entre l'unité courante et les adversaires sur la même case
+        combatUnites(campabeille, campfrelon, grille);
+    }
+}
+
+char combat(Grille* grille) {
+    UListe currentUnit;
+    for (currentUnit = grille->abeille; currentUnit != NULL; currentUnit = currentUnit->usuiv) {
+            resolveCombat(currentUnit, grille);
+        }
+    UpdateRecoltePollen(currentUnit, grille);
+    printGrille(grille);
+    if (PasdeTroupes(grille, ABEILLE)){
+        return FRELON;
+    }
+    if (PasdeTroupes(grille, FRELON)){
+        return ABEILLE;
+    }
+    return 'x'; // pas encore de gagnant
+}
+
 void ordresOuvriere(Unite* ouvriere, Grille* grille) {
-    printf("Voulez-vous (a) déplacer votre ouvrière ? (b) récolter du pollen ? (c) passer le tour ?");
+    printf("Voulez-vous (a) déplacer votre ouvrière ? (b) récolter du pollen ? (c) passer le tour ?\n");
     char rep;
     scanf(" %c", &rep);
     switch(rep) {
@@ -758,9 +697,6 @@ void ordresOuvriere(Unite* ouvriere, Grille* grille) {
                 printf("Impossible de lancer la récolte de pollen.\n");
             }
             break;
-        case 'c':
-            // Ne rien faire, passer le tour
-            break;
         default:
             // passer le tour
             break;
@@ -768,16 +704,13 @@ void ordresOuvriere(Unite* ouvriere, Grille* grille) {
 }
 
 void ordresGuerriereEscadronFrelon(Unite* insecte, Grille* grille) {
-    printf("Voulez-vous (a) déplacer votre %c ? (b) passer le tour ?", insecte->type);
+    printf("Voulez-vous (a) déplacer votre %c ? (b) passer le tour ?\n", insecte->type);
     char rep;
     scanf(" %c", &rep);
 
     switch(rep) {
         case 'a':
             deplacerUnite(insecte, grille);
-            break;
-        case 'b':
-            // Ne rien faire, passer le tour
             break;
         default:
             // passer le tour
@@ -786,16 +719,13 @@ void ordresGuerriereEscadronFrelon(Unite* insecte, Grille* grille) {
 }
 
 void ordresReine(Unite* reine, Grille* grille) {
-    printf("Voulez-vous (a) déplacer votre reine ? (b) passer le tour ?");
+    printf("Voulez-vous (a) déplacer votre reine ou (b) passer le tour ?\n");
     char rep;
     scanf(" %c", &rep);  // Utiliser un espace avant %c pour ignorer les caractères blancs
 
     switch(rep) {
         case 'a':
             deplacerUnite(reine, grille);
-            break;
-        case 'b':
-            // Ne rien faire, passer le tour
             break;
         default:
             // passer le tour
@@ -839,14 +769,25 @@ void ProductionNid(Unite* reine, Grille* grille) {
     if (reine->temps > 0) {
         reine->temps--; // Réduire le temps restant pour la production
     } else if (grille->ressourcesAbeille >= CNID) {
-        Unite* nid = initialiserUnite(FRELON, NID, 0, reine->posx, reine->posy);
-        grille->ressourcesAbeille -= CNID;
+        Unite* nid = NULL; // Déclaration en dehors du bloc switch
+        int rep;
+        printf("Voulez-vous que la reine en (%d,%d) produise un nid pour %d de ressourcesAbeille ?\n 1 : Oui \n 2 : Non\n",reine->posx,reine->posy, CNID);
+        scanf(" %d", &rep);
+        switch(rep) {
+            case 1:
+                nid = initialiserUnite(FRELON, NID, 0, reine->posx, reine->posy);
+                grille->ressourcesAbeille -= CNID;
 
-        // Affilier le nid à la reine
-        affilie_insecte(&reine, nid, grille);
+                // Affilier le nid à la reine
+                affilie_insecte(&nid, reine, grille);
 
-        // Mettre le nid en attente d'un nouvel ordre de production
-        nid->temps = -1;
+                // Mettre le nid en attente d'un nouvel ordre de production
+                nid->temps = -1;
+                break;
+            default:
+                // Passer le tour
+                break;
+        }
     }
 }
 
@@ -854,14 +795,25 @@ void ProductionRuche(Unite* reine, Grille* grille) {
     if (reine->temps > 0) {
         reine->temps--; // Réduire le temps restant pour la production
     } else if (grille->pollen >= CRUCHE) {
-        Unite* ruche = initialiserUnite(ABEILLE, RUCHE, 0, reine->posx, reine->posy);
-        grille->pollen -= CRUCHE;
+        Unite* ruche = NULL; // Déclaration en dehors du bloc switch
+        int rep;
+        printf("Voulez-vous que la reine en (%d,%d) produise une ruche pour %d de pollen ?\n 1 : Oui \n 2 : Non\n",reine->posx,reine->posy, CNID);
+        scanf(" %d", &rep);
+        switch(rep) {
+            case 1:
+                ruche = initialiserUnite(ABEILLE, RUCHE, 0, reine->posx, reine->posy);
+                grille->pollen -= CRUCHE;
 
-        // Affilier la ruche à la reine
-        affilie_insecte(&reine, ruche, grille);
+                // Affilier la ruche à la reine
+                affilie_insecte(&ruche, reine, grille);
 
-        // Mettre la ruche en attente d'un nouvel ordre de production
-        ruche->temps = -1;
+                // Mettre la ruche en attente d'un nouvel ordre de production
+                ruche->temps = -1;
+                break;
+            default:
+                // Passer le tour
+                break;
+        }
     }
 }
 
@@ -869,36 +821,52 @@ void ProductionUnite(Unite* unite, Grille* grille) {
     // Logique de production générique pour les ruches et nids
     if (unite->temps > 0) {
         unite->temps--; // Réduire le temps restant pour la production
-    } else {
-        switch (unite->type) {
-            case REINEA:
+    }
+    Case* case_libre=case_voisine_libre(unite, grille);
+    if (!case_libre){
+        ;   // Si aucune des cases autour n'est disponible ça bloque tous les else
+    } else if (unite->camp == ABEILLE) {
+        int rep;
+        printf("1 : Produire une reine (%d pollen, %d tours)  \n2 : Produire une ouvrière (%d pollen, %d tours)\n3 : Produire une guerrière (%d pollen, %d tours)\n4 : Produire un escadron (%d pollen, %d tours)\n5 : Passer le tour\n", CREINEA, TREINEA, COUVRIERE, TOUVRIERE, CGUERRIERE, TGUERRIERE, CESCADRON, TESCADRON);
+        scanf(" %d", &rep);
+        switch (rep) {
+            case 1:
                 // La production de la reine abeille est gérée dans ProductionRuche, donc rien à faire ici
                 break;
-            case REINEF:
-                // La production de la reine frelon est gérée dans ProductionNid, donc rien à faire ici
-                break;
-            case OUVRIERE:
+            case 2:
                 if (grille->ressourcesAbeille >= COUVRIERE) {
-                    initialiserUnite(ABEILLE, OUVRIERE, FOUVRIERE, unite->posx, unite->posy);
+                    initialiserUnite(ABEILLE, OUVRIERE, FOUVRIERE, case_libre->x, case_libre->y);
                     grille->ressourcesAbeille -= COUVRIERE;
                     unite->temps = TOUVRIERE; // Temps nécessaire à la production d'une ouvrière
                 }
                 break;
-            case GUERRIERE:
+            case 3:
                 if (grille->ressourcesAbeille >= CGUERRIERE) {
                     initialiserUnite(ABEILLE, GUERRIERE, FGUERRIERE, unite->posx, unite->posy);
                     grille->ressourcesAbeille -= CGUERRIERE;
                     unite->temps = TGUERRIERE; // Temps nécessaire à la production d'une guerrière
                 }
                 break;
-            case ESCADRON:
+            case 4:
                 if (grille->ressourcesAbeille >= CESCADRON) {
                     initialiserUnite(ABEILLE, ESCADRON, FESCADRON, unite->posx, unite->posy);
                     grille->ressourcesAbeille -= CESCADRON;
                     unite->temps = TESCADRON; // Temps nécessaire à la production d'un escadron
                 }
                 break;
-            case FREL:
+            default:
+                // Passer le tour
+                break;
+        }
+    } else {
+        int rep;
+        printf("1 : Produire une reine (%d ressourcesAbeille, %d tours)\n2 : Produire un frelon (%d ressourcesAbeille, %d tours)\n3 : Passer le tour\n", CREINEF, TREINEF, CFRELON, TFRELON);
+        scanf(" %d", &rep);
+        switch (rep) {
+            case 1:
+                // La production de la reine frelon est gérée dans ProductionNid, donc rien à faire ici
+                break;
+            case 2:
                 if (grille->pollen >= CFRELON) {
                     initialiserUnite(FRELON, FREL, FFRELON, unite->posx, unite->posy);
                     grille->pollen -= CFRELON;
@@ -906,7 +874,7 @@ void ProductionUnite(Unite* unite, Grille* grille) {
                 }
                 break;
             default:
-                // Gérer les autres types d'unités si nécessaire
+                // Passer le tour
                 break;
         }
     }
@@ -924,7 +892,11 @@ void donnerCommandesProduction(UListe liste, Grille* grille) {
                 ProductionNid(currentUnit, grille);
                 break;
             case RUCHE:
+                printf("Choix de la production de la ruche en (%d,%d) :\n",currentUnit->posx,currentUnit->posy);
+                ProductionUnite(currentUnit, grille);
+                break;
             case NID:
+                printf("Choix de la production du nid en (%d,%d) :\n",currentUnit->posx,currentUnit->posy);
                 ProductionUnite(currentUnit, grille);
                 break;
             default:
@@ -938,16 +910,16 @@ void tour(Grille* grille, char camp) {
     // Cela est déjà fait dans le main avant d'appeler cette fonction
 
     // Deuxième étape : donner les commandes de production des ruches ou nids
-    printf("Voulez-vous produire une ruche ou une abeille ? (o pour oui) ");
-    char rep;
-    scanf("%c", &rep);
-    if (rep=='o'){
-        if (camp == ABEILLE) {
-            donnerCommandesProduction(grille->abeille, grille);
-        } else {
-            donnerCommandesProduction(grille->frelon, grille);
-        }
+    printGrille(grille);
+    printf("Tour des %c\n", camp);
+    if (camp == ABEILLE) {
+        printf("Pollen : %d\n",grille->pollen);
+        donnerCommandesProduction(grille->abeille, grille);
+    } else {
+        printf("RessourcesAbeille : %d\n",grille->ressourcesAbeille);
+        donnerCommandesProduction(grille->frelon, grille);
     }
+
 
     // Troisième étape : donner les ordres aux insectes
     if (camp == ABEILLE) {
@@ -963,7 +935,7 @@ void tour(Grille* grille, char camp) {
     // Ainsi, on ne résout les combats que dans le main après les deux appels à tour
 
     // Cinquième étape : mettre à jour les ressources
-    // C'est également fait dans le main après la résolution des combats
+    // C'est également fait dans l'étape de la résolution des combats
 }
 
 
@@ -986,38 +958,7 @@ void tour(Grille* grille, char camp) {
 
 
 
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-pas terminé
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-
-void resolveCombat(Unite* insecte, Grille* grille) {
-    Unite* abeille_fighter = abeilles_fighter(case);
-    Unite* frelon_fighter = frelons_fighter(case);
-    Unite* insecte_gagnant = insecte_gagnante(abeille_fighter, frelon_fighter);
-    Unite* unite_perdu = (insecte_gagnant == abeille_fighter) ? frelon_fighter : abeille_fighter;
-    // si l'insecte perdu est une insectr
-    if (unite_perdu->force){
-        detruireUnite(grille, &unite_perdu);
-        return;
-    }
-    Conversion_ruche_nid(&grille, &unite_perdu, &insecte_gagnant);
-
-}
-
-void printgrille(Grille* grille) {
-    // Implémentez la logique pour afficher la grille
-}
-
-int PasdeTroupes(Grille* grille, char camp) {
-    // Implémentez la logique pour vérifier s'il n'y a plus de troupes du camp spécifié
-    // sur la grille
-    return 0; // À adapter en fonction de l'implémentation
-}
-
- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-pas terminé
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
 
@@ -1033,7 +974,7 @@ pas terminé
 
 int main() {
     srand(time(NULL));
-    int fin = 0;
+    char fin = 'x';
 
     Grille* grille = (Grille*)malloc(sizeof(Grille));
     memset(grille, 0, sizeof(Grille));
@@ -1063,31 +1004,18 @@ int main() {
     affilie_insecte(&nid1,frelon1_2, grille);
     affilie_insecte(&nid1,frelon1_3, grille);
     // Simulation
-    while (!fin) {
+    while (fin == 'x') {
         char firstCamp = (rand() % 2 == 0) ? ABEILLE : FRELON;
         char secondCamp = (firstCamp == ABEILLE) ? FRELON : ABEILLE;
 
         tour(grille, firstCamp);
         tour(grille, secondCamp);
-
-        // Combat
-        /*
-        UListe currentUnit;
-        for (currentUnit = grille->abeille; currentUnit != NULL; currentUnit = currentUnit->usuiv) {
-            resolveCombat(currentUnit, grille);
+        fin = combat(grille);
+        if (fin == FRELON){
+            printf("Les frelons ont gagné !");
+        } else if (fin == ABEILLE){
+            printf("Les abeilles ont gagné !");
         }
-        for (currentUnit = grille->frelon; currentUnit != NULL; currentUnit = currentUnit->usuiv) {
-            resolveCombat(currentUnit, grille);
-        }
-
-        updateResources(grille);
-
-        printgrille(grille);
-
-        if (PasdeTroupes(grille, ABEILLE) || PasdeTroupes(grille, FRELON))
-            fin = 1;
-
-                */
     }
 
     // Libérer la mémoire
