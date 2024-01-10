@@ -902,7 +902,7 @@ void ProductionUnite(Unite* unite, Grille* grille, FILE* fileW) {
     Unite* insecte;
     Case* case_libre=case_voisine_libre(unite, grille);
     if (!case_libre){
-        printf("Aucune case libre pour votre unité. Production annulée.");   // Si aucune des cases autour n'est disponible ça bloque tous les else
+        printf("Aucune case libre pour votre unité. Production annulée.\n");   // Si aucune des cases autour n'est disponible ça bloque tous les else
     } else if (unite->camp == ABEILLE) {
         int rep;
         printf("Pollen : %d\nVotre ruche en (%d,%d) peut :\n",grille->pollen, unite->posx, unite->posy);
@@ -917,7 +917,7 @@ void ProductionUnite(Unite* unite, Grille* grille, FILE* fileW) {
                     grille->pollen -= CREINEA;
                     unite->temps = TREINEA; // Temps nécessaire à la production d'une ouvrière
                 } else {
-                    printf("Pollen insuffisant");
+                    printf("Pollen insuffisant\n");
                 }
                 break;                
             case 2:
@@ -928,7 +928,7 @@ void ProductionUnite(Unite* unite, Grille* grille, FILE* fileW) {
                     grille->pollen -= COUVRIERE;
                     unite->temps = TOUVRIERE; // Temps nécessaire à la production d'une ouvrière
                 }else {
-                    printf("Pollen insuffisant");
+                    printf("Pollen insuffisant\n");
                 }
                 break;
             case 3:
