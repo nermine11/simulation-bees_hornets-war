@@ -1,4 +1,4 @@
-#include <MLV/MLV_all.h>
+//#include <MLV/MLV_all.h>
 #include <stdio.h>
 #include<stdlib.h>
 #include<time.h>
@@ -173,19 +173,12 @@ void printGrille(Grille* grille) {
 }
 
 
-//ajout de l'unité à la ruche
+//ajout de l'unité à la ruche ou nid
 int affilie_insecte(UListe* ruche, Unite* nv_unite) {
-    // Vérifier si la ruche est nulle (vide)
-    if (*ruche == NULL) {
-        *ruche = nv_unite;  // La nouvelle unité devient le premier élément de la ruche
-        nv_unite->uprec = NULL;
-        nv_unite->usuiv = NULL;
-        return 1;
-    }
 
     // Ajouter la nouvelle unité à la fin de la liste
     UListe temp = *ruche;
-    while (temp->usuiv != NULL) {
+    while (temp->usuiv) {
         temp = temp->usuiv;
     }
 
@@ -303,7 +296,6 @@ void extrait_case(Grille** grid, Unite* unite) {
     unite->usuiv = unite->uprec = NULL;
 }
 
-// L'insecte ne fait plus partie de la liste de ruche
 void extrait_ruche(Grille** grid, Unite* unite) {
     // Vérifier si ce n'est pas le premier de la liste de ruche
     if (unite->colprec != NULL) {
@@ -317,7 +309,6 @@ void extrait_ruche(Grille** grid, Unite* unite) {
 
     unite->colsuiv = unite->colprec = NULL;
 }
-
 
 // L'insecte quitte sa ruche
 void extrait_insecte_affilie(UListe* insecte) {
@@ -385,23 +376,22 @@ Unite* initialiserUnite(Grille** grid, char camp, char type, int force, int posx
     unite->uprec = NULL;
     unite->colsuiv = NULL;
     unite->colprec = NULL;
-    if ((unite)->type == RUCHE) {
-        affilie_ruche(*grid, &unite); //initialise vsuiv, vprec (NULL si c'est pas une ruche)
-    }
+
     ajout_unite_case(grid, unite, posx, posy); //initialise vsuiv, vprec
     fileW = fopen("ma_sauvegarde.jo", "a");
     if (!fileW)
     {
         printf("Erreur: %s\n", "ma_sauvegarde_jo");
         exit(1);
-    }
+    }   
+
     return unite;
 }
 
 // Fonction pour déplacer une unité
-void deplacerUnite(Unite* unite, Grille* grille) {
+void deplacerUnite(Unite* unite, Grille* grid) {
     // Affichage des directions possibles
-    printGrille(grille);
+    printGrille(grid);
     printf("Directions possibles : n (nord), ne (nord-est), e (est), se (sud-est), s (sud), so (sud-ouest), o (ouest), no (nord-ouest)\n");
     // Demander à l'utilisateur d'entrer la direction
     char direction[3];  // "NO" est la plus longue, donc besoin de 3 caractères
@@ -413,6 +403,8 @@ void deplacerUnite(Unite* unite, Grille* grille) {
         // Déplacement vers le nord
         if (unite->posy > 0) {
             unite->posy--;
+            extrait_case(&grid, unite);
+            ajout_unite_case(&grid, unite, unite->posx , unite->posy);
             printf("Déplacement vers le nord effectué.\n"); // Un insecte peut aller sur une case déjà occupé, c'est le principe
         } else {
             printf("Déplacement impossible vers le nord.\n");
@@ -422,6 +414,8 @@ void deplacerUnite(Unite* unite, Grille* grille) {
         if (unite->posy > 0 && unite->posx < COLONNES - 1) {
             unite->posy--;
             unite->posx++;
+            extrait_case(&grid, unite);
+            ajout_unite_case(&grid, unite, unite->posx , unite->posy);
             printf("Déplacement vers le nord-est effectué.\n");
         } else {
             printf("Déplacement impossible vers le nord-est.\n");
@@ -430,6 +424,8 @@ void deplacerUnite(Unite* unite, Grille* grille) {
         // Déplacement vers l'est
         if (unite->posx < COLONNES - 1) {
             unite->posx++;
+            extrait_case(&grid, unite);
+            ajout_unite_case(&grid, unite, unite->posx , unite->posy);
             printf("Déplacement vers l'est effectué.\n");
         } else {
             printf("Déplacement impossible vers l'est.\n");
@@ -439,6 +435,8 @@ void deplacerUnite(Unite* unite, Grille* grille) {
         if (unite->posy < LIGNES - 1 && unite->posx < COLONNES - 1) {
             unite->posy++;
             unite->posx++;
+            extrait_case(&grid, unite);
+            ajout_unite_case(&grid, unite, unite->posx , unite->posy);
             printf("Déplacement vers le sud-est effectué.\n");
         } else {
             printf("Déplacement impossible vers le sud-est.\n");
@@ -447,6 +445,8 @@ void deplacerUnite(Unite* unite, Grille* grille) {
         // Déplacement vers le sud
         if (unite->posy < LIGNES - 1) {
             unite->posy++;
+            extrait_case(&grid, unite);
+            ajout_unite_case(&grid, unite, unite->posx , unite->posy);
             printf("Déplacement vers le sud effectué.\n");
         } else {
             printf("Déplacement impossible vers le sud.\n");
@@ -456,6 +456,8 @@ void deplacerUnite(Unite* unite, Grille* grille) {
         if (unite->posy < LIGNES - 1 && unite->posx > 0) {
             unite->posy++;
             unite->posx--;
+            extrait_case(&grid, unite);
+            ajout_unite_case(&grid, unite, unite->posx , unite->posy);
             printf("Déplacement vers le sud-ouest effectué.\n");
         } else {
             printf("Déplacement impossible vers le sud-ouest.\n");
@@ -464,6 +466,8 @@ void deplacerUnite(Unite* unite, Grille* grille) {
         // Déplacement vers l'ouest
         if (unite->posx > 0) {
             unite->posx--;
+            extrait_case(&grid, unite);
+            ajout_unite_case(&grid, unite, unite->posx , unite->posy);
             printf("Déplacement vers l'ouest effectué.\n");
         } else {
             printf("Déplacement impossible vers l'ouest.\n");
@@ -473,6 +477,8 @@ void deplacerUnite(Unite* unite, Grille* grille) {
         if (unite->posy > 0 && unite->posx > 0) {
             unite->posy--;
             unite->posx--;
+            extrait_case(&grid, unite);
+            ajout_unite_case(&grid, unite, unite->posx , unite->posy);
             printf("Déplacement vers le nord-ouest effectué.\n");
         } else {
             printf("Déplacement impossible vers le nord-ouest.\n");
@@ -600,9 +606,17 @@ int lancerRecoltePollen(Unite* ouvriere, Grille* grille) {
 }
 
 int Conversion_ruche_nid(Grille** grille, UListe* ruche_nid, UListe* insecte_gagnant){
+    
     extrait_ruche(grille, *ruche_nid);
-    (*ruche_nid)-> camp = FRELON;
-    (*ruche_nid)-> type = NID;
+    // s'il s'agit d'une ruche
+    if((*ruche_nid)->type == RUCHE)
+    {
+        (*ruche_nid)-> camp = FRELON;
+        (*ruche_nid)-> type = NID;
+    }
+    //s'il s'agit d'un nid
+    (*ruche_nid)-> camp = ABEILLE;
+    (*ruche_nid)-> type = RUCHE;
     (*ruche_nid)-> production = 'X';
     (*ruche_nid)-> temps = (*ruche_nid)-> toursrestant = -1;
     if((*ruche_nid)->usuiv){
@@ -610,11 +624,12 @@ int Conversion_ruche_nid(Grille** grille, UListe* ruche_nid, UListe* insecte_gag
             detruire_insecte(*grille, &temp);
         }
     }
-    // link le nid aux autres nids
     affilie_ruche(*grille, ruche_nid);
     extrait_insecte_affilie(insecte_gagnant);
     affilie_insecte(ruche_nid, *insecte_gagnant);
     return 1;
+
+
 }
 
 // Fonction pour simuler le lancer d'un dé à 60 faces
@@ -734,7 +749,7 @@ char combat(Grille* grille) {
 }
 
 void ordresOuvriere(Unite* ouvriere, Grille* grille) {
-    printf("Voulez-vous (a) déplacer votre ouvrière en (%d,%d) ? (b) récolter du pollen ? (c) passer le tour ?\n", ouvriere->posx, ouvriere->posy);
+    printf("Voulez-vous (a) déplacer votre ouvrière qui est dans (%d,%d) ? (b) récolter du pollen ? (c) passer le tour ?\n", ouvriere->posx, ouvriere->posy);
     char rep;
     scanf(" %c", &rep);
     switch(rep) {
@@ -756,7 +771,7 @@ void ordresOuvriere(Unite* ouvriere, Grille* grille) {
 }
 
 void ordresGuerriereEscadronFrelon(Unite* insecte, Grille* grille) {
-    printf("Voulez-vous (a) déplacer votre %c en (%d,%d) ? (b) passer le tour ?\n", insecte->type, insecte->posx, insecte->posy);
+    printf("Voulez-vous (a) déplacer votre %c qui est dans (%d,%d) ? (b) passer le tour ?\n", insecte->type, insecte->posx, insecte->posy);
     char rep;
     scanf(" %c", &rep);
 
@@ -771,7 +786,7 @@ void ordresGuerriereEscadronFrelon(Unite* insecte, Grille* grille) {
 }
 
 void ordresReine(Unite* reine, Grille* grille) {
-    printf("Voulez-vous (a) déplacer votre reine en (%d,%d) ou (b) passer le tour ?\n", reine->posx, reine->posy);
+    printf("Voulez-vous (a) déplacer votre reine qui est dans (%d,%d) ou (b) passer le tour ?\n", reine->posx, reine->posy);
     char rep;
     scanf(" %c", &rep);  // Utiliser un espace avant %c pour ignorer les caractères blancs
 
