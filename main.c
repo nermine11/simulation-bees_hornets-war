@@ -745,55 +745,70 @@ char combat(Grille* grille) {
 }
 
 void ordresOuvriere(Unite* ouvriere, Grille* grille) {
-    printf("Voulez-vous (a) déplacer votre ouvrière qui est en (%d,%d) ? (b) récolter du pollen ? (c) passer le tour ?\n", ouvriere->posx, ouvriere->posy);
-    char rep;
-    scanf(" %c", &rep);
-    switch(rep) {
-        case 'a':
-            deplacerUnite(ouvriere, grille);
-            break;
-        case 'b':
-            // Commencez le processus de récolte de pollen
-            if (lancerRecoltePollen(ouvriere, grille)) {
-                printf("Récolte de pollen lancée.\n");
-            } else {
-                printf("Impossible de lancer la récolte de pollen.\n");
+    if (ouvriere->temps > 0) {
+        // Décrémenter le compteur de tours restants
+        ouvriere->temps--;
+        } else {
+            printf("Voulez-vous (a) déplacer votre ouvrière qui est en (%d,%d) ? (b) récolter du pollen ? (c) passer le tour ?\n", ouvriere->posx, ouvriere->posy);
+            char rep;
+            scanf(" %c", &rep);
+            switch(rep) {
+                case 'a':
+                    deplacerUnite(ouvriere, grille);
+                    break;
+                case 'b':
+                    // Commencez le processus de récolte de pollen
+                    if (lancerRecoltePollen(ouvriere, grille)) {
+                        printf("Récolte de pollen lancée.\n");
+                    } else {
+                        printf("Impossible de lancer la récolte de pollen.\n");
+                    }
+                    break;
+                default:
+                    // passer le tour
+                    break;
             }
-            break;
-        default:
-            // passer le tour
-            break;
-    }
+        }
 }
 
 void ordresGuerriereEscadronFrelon(Unite* insecte, Grille* grille) {
-    printf("Voulez-vous (a) déplacer votre %c qui est en (%d,%d) ? (b) passer le tour ?\n", insecte->type, insecte->posx, insecte->posy);
-    char rep;
-    scanf(" %c", &rep);
+    if (insecte->temps > 0) {
+        // Décrémenter le compteur de tours restants
+        insecte->temps--;
+        } else {
+            printf("Voulez-vous (a) déplacer votre %c qui est en (%d,%d) ? (b) passer le tour ?\n", insecte->type, insecte->posx, insecte->posy);
+            char rep;
+            scanf(" %c", &rep);
 
-    switch(rep) {
-        case 'a':
-            deplacerUnite(insecte, grille);
-            break;
-        default:
-            // passer le tour
-            break;
-    }
+            switch(rep) {
+                case 'a':
+                    deplacerUnite(insecte, grille);
+                    break;
+                default:
+                    // passer le tour
+                    break;
+            }
+        }
 }
 
 void ordresReine(Unite* reine, Grille* grille) {
-    printf("Voulez-vous (a) déplacer votre reine qui est en (%d,%d) ou (b) passer le tour ?\n", reine->posx, reine->posy);
-    char rep;
-    scanf(" %c", &rep);  // Utiliser un espace avant %c pour ignorer les caractères blancs
+    if (reine->temps > 0) {
+        // Décrémenter le compteur de tours restants
+        reine->temps--;
+        } else {
+            printf("Voulez-vous (a) déplacer votre reine qui est en (%d,%d) ou (b) passer le tour ?\n", reine->posx, reine->posy);
+            char rep;
+            scanf(" %c", &rep);  // Utiliser un espace avant %c pour ignorer les caractères blancs
 
-    switch(rep) {
-        case 'a':
-            deplacerUnite(reine, grille);
-            break;
-        default:
-            // passer le tour
-            break;
-    }
+            switch(rep) {
+                case 'a':
+                    deplacerUnite(reine, grille);
+                    break;
+                default:
+                    // passer le tour
+                    break;
+            }
+        }
 }
 
 void donnerOrdresInsectes(UListe liste, Grille* grille) {
