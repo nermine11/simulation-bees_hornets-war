@@ -729,9 +729,7 @@ char combat(Grille* grille) {
         for( x = 0; x< LIGNES; x++){
             for (y = 0; y< COLONNES;y++){
                 casee = &grille->plateau[x][y];
-                printf("ça passe 2");
                 while(combat_case(casee)){
-                    printf("ça passe 3");
                     resolveCombat(grille, casee);
                 }
              }
