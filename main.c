@@ -939,7 +939,7 @@ void ProductionUnite(Unite* unite, Grille* grille, FILE* fileW) {
                     grille->pollen -= CGUERRIERE;
                     unite->temps = TGUERRIERE; // Temps nécessaire à la production d'une guerrière
                 }else {
-                    printf("Pollen insuffisant");
+                    printf("Pollen insuffisant\n");
                 }
                 break;
             case 4:
@@ -950,7 +950,7 @@ void ProductionUnite(Unite* unite, Grille* grille, FILE* fileW) {
                     grille->pollen -= CESCADRON;
                     unite->temps = TESCADRON; // Temps nécessaire à la production d'un escadron
                 }else {
-                    printf("Pollen insuffisant");
+                    printf("Pollen insuffisant\n");
                 }
                 break;
             default:
@@ -1023,7 +1023,7 @@ void tour(Grille* grille, char camp, FILE* fileW) {
     if (camp == ABEILLE) {
         donnerCommandesProduction(grille->abeille, grille, fileW);
     } else {
-        donnerCommandesProduction(grille->abeille, grille, fileW);
+        donnerCommandesProduction(grille->frelon, grille, fileW);
     }
 
     // Troisième étape : donner les ordres aux insectes
